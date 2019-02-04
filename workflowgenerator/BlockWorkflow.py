@@ -2,6 +2,7 @@ import mupif
 from . import tools
 from . import Block
 from . import DataSlot
+from . import DataLink
 from . import BlockModel
 
 import os
@@ -17,6 +18,7 @@ class BlockWorkflow (Block.Block):
 
     def __init__(self):
         Block.Block.__init__(self)
+        self.datalinks = []
 
     def getWorkflowBlock(self):
         """
@@ -322,7 +324,27 @@ class BlockWorkflow (Block.Block):
                             BlockWorkflow.list_of_model_dependencies.append("from %s import %s" % (
                                 py_mod.__name__, my_class.__name__))
 
+    def getDataLinks(self):
+        """
+        :return:
+        :rtype: list of DataLink.DataLink
+        """
+        return self.datalinks
 
+    def getDataLinksOfSlot(self, slot):
+        dls = []
+        for dl in self.getDataLinks():
+            if dl.containsSlot(slot):
+                dls.append(dl)
+        return dls
+
+    def addDataLink(self, datalink):
+        self.datalinks.append(datalink)
+
+    def removeDataLink(self, datalink):
+        idx = self.datalinks.index(datalink)
+        if idx is not None:
+            del self.datalinks[idx]
 
 
 

@@ -1,10 +1,8 @@
 import mupif
-from . import tools
 from . import Block
 from . import DataLink
 import uuid
-from .exceptions import DuplicateKnobNameError, KnobConnectionError
-import os
+from .exceptions import KnobConnectionError
 from enum import Enum
 
 from termcolor import colored
@@ -60,8 +58,6 @@ class DataSlot:
 
         self.uuid = str(uuid.uuid4())
 
-        self.datalinks = []  # data
-
         self.maxConnections = -1  # A negative value means 'unlimited'.
         if isinstance(self, InputDataSlot):
             self.maxConnections = 1
@@ -85,11 +81,10 @@ class DataSlot:
 
     def getDataLinks(self):
         """
-
         :return:
         :rtype: list of DataLink.DataLink
         """
-        return self.datalinks
+        return self.getParentBlock().getWorkflowBlock().getDataLinksOfSlot(self)
 
     def setType(self, val):
         self.type = val
@@ -104,25 +99,11 @@ class DataSlot:
     def setParentBlock(self, parent_block):
         self.parent_block = parent_block
 
-    @staticmethod
-    def connectDataSlots(slot_a, slot_b):
-        """
-
-        :param DataSlot slot_a:
-        :param DataSlot slot_b:
-        :return:
-        """
-        dl = DataLink.DataLink(slot_a, slot_b)
-        slot_a.addDataConnection(dl)
-        slot_b.addDataConnection(dl)
-
     def connectTo(self, target):
         """
-
         :param DataSlot target:
         :return:
         """
-
         if not isinstance(target, DataSlot):
             print("(%s x %s)" % (self, target))
             raise KnobConnectionError("Ignoring connection to all element types except DataSlot and derived classes.")
@@ -148,10 +129,10 @@ class DataSlot:
         if self.isConnectedToSlot(target):
             raise KnobConnectionError("Connection already exists.")
 
-        self.connectDataSlots(self, target)
+        DataLink.DataLink.addNew(self, target)
 
     def connected(self):
-        if len(self.datalinks):
+        if len(self.getDataLinks()):
             return True
         return False
 
@@ -166,32 +147,18 @@ class DataSlot:
                 return True
         return False
 
-    def addDataConnection(self, data_link):
-        """
-        :param DataLink.DataLink data_link:
-        :return:
-        """
-        self.datalinks.append(data_link)
-
-    def removeDataConnection(self, data_link):
-        """
-        :param DataLink.DataLink data_link:
-        :return:
-        """
-        self.datalinks.remove(data_link)
-
     def setUUID(self, uuid):
         self.uuid = uuid
 
     def reachedMaxConnections(self):
         if self.maxConnections < 0:
             return False
-        if len(self.datalinks) < self.maxConnections:
+        if len(self.getDataLinks()) < self.maxConnections:
             return False
         return True
 
     def deleteAllConnections(self):
-        datalink_to_be_deleted = self.datalinks[::]  # Avoid shrinking during deletion.
+        datalink_to_be_deleted = self.getDataLinks()[::]  # Avoid shrinking during deletion.
         for data_link in datalink_to_be_deleted:
             data_link.destroy()
 
@@ -213,8 +180,8 @@ class DataSlot:
         :return:
         :rtype: DataSlot
         """
-        if len(self.datalinks) == 1:
-            return self.datalinks[0].giveTheOtherSlot(self)
+        if len(self.getDataLinks()) == 1:
+            return self.getDataLinks()[0].giveTheOtherSlot(self)
         return None
 
     def generateCodeName(self, base_name='dataslot_'):

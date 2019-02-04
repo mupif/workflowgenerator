@@ -1,9 +1,6 @@
 import mupif
-from . import tools
-from . import Block
 from . import DataSlot
 import uuid
-from .exceptions import DuplicateKnobNameError, KnobConnectionError
 
 
 class DataLink:
@@ -13,8 +10,8 @@ class DataLink:
     def __init__(self, slot_1=None, slot_2=None):
         self.uuid = str(uuid.uuid4())
 
-        self.source = slot_1
-        self.target = slot_2
+        self.source = slot_1  # type: DataSlot.DataSlot
+        self.target = slot_2  # type: DataSlot.DataSlot
 
     def __str__(self):
         return "Datalink (%s -> %s)" % (self.source, self.target)
@@ -23,12 +20,9 @@ class DataLink:
         return self.__str__()
 
     def destroy(self):
-        """Remove this DataLink and its reference in other objects."""
-        if self.source:
-            self.source.removeDataConnection(self)
-        if self.target:
-            self.target.removeDataConnection(self)
-        del self
+        """Remove this DataLink and its reference in workflow."""
+        self.source.getParentBlock().getWorkflowBlock().removeDataLink(self)
+        # del self
 
     def giveTheOtherSlot(self, first_slot):
         if self.source == first_slot:
@@ -41,3 +35,19 @@ class DataLink:
         answer = {'classname': self.__class__.__name__, 'uuid': self.uuid}
         answer.update({'ds1_uuid': self.source.uuid, 'ds2_uuid': self.target.uuid})
         return answer
+
+    @staticmethod
+    def addNew(slot1, slot2):
+        """
+        :param DataSlot.DataSlot slot1:
+        :param DataSlot.DataSlot slot2:
+        :return:
+        :rtype: bool
+        """
+        workflow = slot1.getParentBlock().getWorkflowBlock()
+        workflow.addDataLink(DataLink(slot1, slot2))
+
+    def containsSlot(self, slot):
+        if self.source is slot or self.target is slot:
+            return True
+        return False

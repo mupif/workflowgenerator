@@ -1,7 +1,6 @@
 import mupif
 from . import tools
 from . import DataSlot
-from . import exceptions
 import uuid
 
 from termcolor import colored
