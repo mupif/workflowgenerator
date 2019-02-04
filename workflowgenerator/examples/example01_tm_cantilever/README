@@ -1,0 +1,9 @@
+This example generates code of a thermo-mechanical simulation.
+The model classes are in implemented in file models.py.
+File field_to_vtk.py includes basic model for easy export to VTK.
+
+First, run main_class_code_generation.py and save the class code as class_code.py.
+Then, run main_exec_code_generation.py and save the execution code as exec_code.py.
+And now, you can finally run the exec_code.py.
+
+Optionally, you can run it all at once using a makefile.
