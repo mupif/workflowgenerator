@@ -33,7 +33,7 @@ class DataLink:
 
     def getDictForJSON(self):
         answer = {'classname': self.__class__.__name__, 'uuid': self.uuid}
-        answer.update({'ds1_uuid': self.source.uuid, 'ds2_uuid': self.target.uuid})
+        answer.update({'ds1_uuid': self.source.uid, 'ds2_uuid': self.target.uuid})
         return answer
 
     @staticmethod

@@ -66,14 +66,20 @@ class BlockWorkflow (Block.Block):
             if not ds.optional and not ds.connected():
                 print("Some compulsory DataSlots are not connected.")
                 return False
-            if execution and (isinstance(ds, DataSlot.ExternalInputDataSlot) or isinstance(ds, DataSlot.ExternalOutputDataSlot)):
+            if execution and (isinstance(ds, DataSlot.ExternalInputDataSlot)
+                              or isinstance(ds, DataSlot.ExternalOutputDataSlot)):
                 if ds.connected():
                     print("Usage of External DataSlots is not allowed in execution Workflow.")
                     return False
         return True
 
     def getAllExternalDataSlots(self, only=""):
-        eds = []
+        """
+        :param string only: "in" or "out"
+        :return:
+        :rtype: list of DataSlot.ExternalOutputDataSlot, DataSlot.ExternalInputDataSlot
+        """
+        eds = []  #: :type: list of (DataSlot.ExternalOutputDataSlot, DataSlot.ExternalInputDataSlot)
         for slot in self.getSlots():
             if isinstance(slot, DataSlot.ExternalInputDataSlot) and (only == "" or only == "in"):
                 eds.append(slot)

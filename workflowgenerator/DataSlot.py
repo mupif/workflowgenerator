@@ -56,11 +56,35 @@ class DataSlot:
             self.optional = True
             self.external = True
 
-        self.uuid = str(uuid.uuid4())
+        self.uid = str(uuid.uuid4())
 
         self.maxConnections = -1  # A negative value means 'unlimited'.
         if isinstance(self, InputDataSlot):
             self.maxConnections = 1
+
+    def getName(self):
+        """ :rtype: str """
+        return self.name
+
+    def getType(self):
+        """ :rtype: DataSlotType """
+        return self.type
+
+    def getOptional(self):
+        """ :rtype: bool """
+        return self.optional
+
+    def getExternal(self):
+        """ :rtype: bool """
+        return self.external
+
+    def getObjType(self):
+        """ :rtype: int """
+        return self.obj_type
+
+    def getObjID(self):
+        """ :rtype: int """
+        return self.obj_id
 
     def connectedInfo(self):
         if self.connected():
@@ -76,8 +100,8 @@ class DataSlot:
             self.__class__.__name__, self.getParentBlock().name, self.name, self.type), "blue"),
                           self.connectedInfo())
 
-    def getUUID(self):
-        return self.uuid
+    def getUID(self):
+        return self.uid
 
     def getDataLinks(self):
         """
@@ -147,8 +171,8 @@ class DataSlot:
                 return True
         return False
 
-    def setUUID(self, uuid):
-        self.uuid = uuid
+    def setUUID(self, uid):
+        self.uid = uid
 
     def reachedMaxConnections(self):
         if self.maxConnections < 0:
@@ -167,10 +191,10 @@ class DataSlot:
 
     def getParentUUID(self):
         if self.getParentBlock():
-            return self.getParentBlock().getUUID()
+            return self.getParentBlock().getUID()
 
     def getDictForJSON(self):
-        answer = {'classname': self.__class__.__name__, 'uuid': self.uuid, 'parent_uuid': self.getParentUUID()}
+        answer = {'classname': self.__class__.__name__, 'uuid': self.uid, 'parent_uuid': self.getParentUUID()}
         answer.update({'name': self.name, 'type': "%s" % DataSlotType.getNameFromType(self.type)})
         answer.update({'obj_id': self.obj_id, 'obj_type': "%s" % self.obj_type})
         return answer

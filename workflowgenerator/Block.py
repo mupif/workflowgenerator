@@ -14,13 +14,14 @@ class Block:
         self.name = ""
         self.code_name = ""
         self.parent_block = None
-        self.allow_child_blocks = False
         self.uuid = str(uuid.uuid4())
+
+        self.allow_child_blocks = False
 
     def __repr__(self):
         return "Block (%s, %s)" % (self.name, self.__class__.__name__)
 
-    def getUUID(self):
+    def getUID(self):
         return self.uuid
 
     def getBlocks(self, cls=None):
@@ -128,19 +129,6 @@ class Block:
         """
         return "ToBeImplemented"
 
-    # def getAllDataSlots(self, recursive=False):
-    #     array = self.getDataSlots()
-    #     if recursive:
-    #         for block in self.getChildExecutionBlocks():
-    #             array.extend(block.getAllDataSlots(True))
-    #     return array
-
-    # def getDataSlotWithUUID(self, uuid, recursive_search=False):
-    #     for slot in self.getAllDataSlots(recursive_search):
-    #         if slot.uuid == uuid:
-    #             return slot
-    #     return None
-
     def getDataSlotWithName(self, name):
         """Return matching data slot by its name, None otherwise.
         :rtype: DataSlot.DataSlot or None
@@ -149,15 +137,6 @@ class Block:
             if slot.name == name:
                 return slot
         return None
-
-    # def getDataSlot(self, name=None, uuid=None, parent_uuid=None, recursive_search=False):
-    #     if name or uuid or parent_uuid:
-    #         for slot in self.getAllDataSlots(recursive_search):
-    #             if (not name or (slot.name == name and slot.name)) and (
-    #                     not uuid or (slot.uuid == uuid and slot.uuid)) and (
-    #                     not parent_uuid or (slot.getParentUUID() == parent_uuid and slot.getParentUUID())):
-    #                 return slot
-    #     return None
 
     def addDataSlot(self, slot):
         """
@@ -208,25 +187,10 @@ class Block:
         return_json_array.extend([k.getDictForJSON() for k in self.getBlocks()])
         return return_json_array
 
-    # @staticmethod
-    # def getListOfModelClassnames():
-    #     array = [m.__name__ for m in ExecutionBlock.list_of_models]
-    #     return array
-
-    # @staticmethod
-    # def getListOfModelDependencies():
-    #     return ExecutionBlock.list_of_model_dependencies
-
-    # @staticmethod
-    # def getListOfStandardBlockClassnames():
-    #     array = [m.__name__ for m in ExecutionBlock.list_of_block_classes]
-    #     return array
-
     def initializeFromJSONData(self, json_data):
         self.uuid = json_data['uuid']
         e_parent_e = self.getWorkflowBlock().getNodeById(json_data['parent_uuid'])
-        self.parent = e_parent_e
-        self.setParentItem(e_parent_e)
+        self.parent_block = e_parent_e
 
     def generateNewDataSlotName(self, base="data_slot_"):
         names = [n.name for n in self.getSlots()]
@@ -234,7 +198,7 @@ class Block:
         while True:
             i += 1
             new_name = "%s%d" % (base, i)
-            if not new_name in names:
+            if new_name not in names:
                 return new_name
 
     def generateCodeName(self, base_name='block_'):
@@ -257,3 +221,32 @@ class Block:
             for block in self.getBlocks():
                 block.printStructure(indent + 1)
 
+    # ------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------
+    # support functions for visualisation
+
+    def getMenuItems(self):
+        return []
+
+    def getHeaderText(self):
+        """:rtype: str"""
+        return self.__class__.__name__
+
+    def getLabelText(self):
+        """:rtype: str"""
+        return ""
+
+    def getVisualStructureItems(self):
+        """
+        Defines structure of the visual representation.
+        Available keywords:
+        header, label, slots, blocks, slot_1, slot_2, ..., block_1, block_2, ..., label_1, label_2, ...
+        Supposes that all slots and blocks have to be printed.
+        The default printing of these elements comes after the defined structure.
+        :return:
+        :rtype: dict
+        """
+        return {{'header': self.getHeaderText()}, {'label', self.getLabelText()},
+                {'slots', self.getSlots()}, {'blocks', self.getBlocks()}}
