@@ -238,15 +238,20 @@ class Block:
         """:rtype: str"""
         return ""
 
+    def getLabels(self):
+        """
+        :rtype: list of str
+        """
+        return []
+
     def getVisualStructureItems(self):
         """
         Defines structure of the visual representation.
         Available keywords:
-        header, label, slots, blocks, slot_1, slot_2, ..., block_1, block_2, ..., label_1, label_2, ...
+        label, slot, slots, block, blocks
         Supposes that all slots and blocks have to be printed.
         The default printing of these elements comes after the defined structure.
         :return:
         :rtype: dict
         """
-        return {{'header': self.getHeaderText()}, {'label', self.getLabelText()},
-                {'slots', self.getSlots()}, {'blocks', self.getBlocks()}}
+        return {}

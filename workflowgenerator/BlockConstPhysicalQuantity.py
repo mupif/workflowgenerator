@@ -62,3 +62,6 @@ class BlockConstPhysicalQuantity (Block.Block):
         if slot in self.getSlots(DataSlot.OutputDataSlot):
             return "self.%s" % self.code_name
         return "None"
+
+    def getLabels(self):
+        return ["value = %s\nunits = %s" % (self.value, self.units)]

@@ -85,3 +85,7 @@ class BlockConstProperty (Block.Block):
         if slot in self.getSlots(DataSlot.OutputDataSlot):
             return "self.%s" % self.code_name
         return "None"
+
+    def getLabels(self):
+        return ["value           = %s\npropID        = %s\nvalueType = %s\nunits           = %s\n"
+                "objectID    = %s" % (self.value, self.propID, self.valueType, self.units, self.objectID)]

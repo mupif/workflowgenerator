@@ -155,3 +155,7 @@ class BlockModel (Block.Block):
             return "self.%s.get(%s, %s, %s)" % (self.code_name, slot.obj_type, time, obj_id)
         return "None"
 
+    def getHeaderText(self):
+        """:rtype: str"""
+        return "%s - %s" % (self.__class__.__name__, self.name)
+
