@@ -20,6 +20,7 @@ class DataSlotType(Enum):
     Int = 11
     Double = 12
     String = 13
+    Bool = 14
 
     Scalar = 111
 
@@ -163,7 +164,6 @@ class DataSlot:
     def isConnectedToSlot(self, slot):
         """
         :param slot:
-        :return:
         :rtype: bool
         """
         for dl in self.getDataLinks():

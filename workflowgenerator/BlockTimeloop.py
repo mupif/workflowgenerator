@@ -2,14 +2,15 @@ from . import tools
 from . import Block
 from . import DataSlot
 from . import BlockModel
+from . import BlockSequentional
 
 
-class BlockTimeloop (Block.Block):
+class BlockTimeloop (BlockSequentional.BlockSequentional):
     """
     Implementation of sequential processing block
     """
     def __init__(self):
-        Block.Block.__init__(self)
+        BlockSequentional.BlockSequentional.__init__(self)
         self.addDataSlot(DataSlot.InputDataSlot("start_time", DataSlot.DataSlotType.PhysicalQuantity, False))
         self.addDataSlot(DataSlot.InputDataSlot("target_time", DataSlot.DataSlotType.PhysicalQuantity, False))
         self.addDataSlot(DataSlot.InputDataSlot("max_dt", DataSlot.DataSlotType.PhysicalQuantity, True))

@@ -1,6 +1,7 @@
 import mupif
 from . import tools
 from . import DataSlot
+from . import VisualMenu
 import uuid
 
 from termcolor import colored
@@ -18,6 +19,8 @@ class Block:
 
         self.allow_child_blocks = False
 
+        self.menu = None
+
     def __repr__(self):
         return "Block (%s, %s)" % (self.name, self.__class__.__name__)
 
@@ -29,11 +32,11 @@ class Block:
         Returns list of child blocks.
         :param cls: Filtering parameter to obtain only blocks of such class.
         :return: List of child blocks.
-        :rtype: list of Block.Block
+        :rtype: list of Block
         """
         if cls is None:
-            return self.blocks
-        return list(filter(lambda k: k.__class__ is cls, self.blocks))
+            return self.blocks[:]
+        return list(filter(lambda k: k.__class__ is cls, self.blocks))[:]
 
     def getSlots(self, cls=None):
         """
@@ -43,8 +46,8 @@ class Block:
         :rtype: list of DataSlot.DataSlot
         """
         if cls is None:
-            return self.slots
-        return list(filter(lambda k: k.__class__ is cls, self.slots))
+            return self.slots[:]
+        return list(filter(lambda k: k.__class__ is cls, self.slots))[:]
 
     def getBlocksRecursive(self, cls=None):
         """
@@ -72,8 +75,7 @@ class Block:
 
     def getParentBlock(self):
         """
-        :return:
-        :rtype: Block.Block or None
+        :rtype: Block or None
         """
         return self.parent_block
 
@@ -82,8 +84,7 @@ class Block:
 
     def getWorkflowBlock(self):
         """
-        :return:
-        :rtype: BlockWorkflow.BlockWorkflow
+        :rtype: workflowgenerator.BlockWorkflow.BlockWorkflow
         """
         return self.getParentBlock().getWorkflowBlock()
 
@@ -124,7 +125,6 @@ class Block:
         Returns code of get function for given dataslot.
         :param DataSlot.DataSlot slot:
         :param str time:
-        :return:
         :rtype: str
         """
         return "ToBeImplemented"
@@ -221,27 +221,39 @@ class Block:
             for block in self.getBlocks():
                 block.printStructure(indent + 1)
 
-    # ------------------------------------------------------------------------------------------
-    # ------------------------------------------------------------------------------------------
-    # ------------------------------------------------------------------------------------------
+    def deleteAllItems(self):
+        for block in self.getBlocks()[:]:
+            self.deleteBlock(block)
+        for slot in self.getSlots()[:]:
+            self.deleteSlot(slot)
+
+    def deleteSlot(self, slot):
+        if slot in self.slots:
+            idx = self.slots.index(slot)
+            if idx is not None:
+                slot.deleteAllConnections()
+                del self.slots[idx]
+
+    def deleteBlock(self, block):
+        if block in self.blocks:
+            idx = self.blocks.index(block)
+            if idx is not None:
+                block.deleteAllItems()
+                del self.blocks[idx]
+
+    def delete(self):
+        self.getParentBlock().deleteBlock(self)
+
     # ------------------------------------------------------------------------------------------
     # support functions for visualisation
-
-    def getMenuItems(self):
-        return []
+    # ------------------------------------------------------------------------------------------
 
     def getHeaderText(self):
         """:rtype: str"""
         return self.__class__.__name__
 
-    def getLabelText(self):
-        """:rtype: str"""
-        return ""
-
     def getLabels(self):
-        """
-        :rtype: list of str
-        """
+        """:rtype: list of str"""
         return []
 
     def getVisualStructureItems(self):
@@ -251,7 +263,36 @@ class Block:
         label, slot, slots, block, blocks
         Supposes that all slots and blocks have to be printed.
         The default printing of these elements comes after the defined structure.
-        :return:
-        :rtype: dict
+        :rtype: list of str
         """
-        return {}
+        return []
+
+    def modificationQuery(self, keyword, value=None):
+        """
+        :param str keyword:
+        :param value:
+        """
+        if keyword == 'add_block' and isinstance(value, Block):
+            self.addBlock(value)
+        elif keyword == 'delete_block' and isinstance(value, Block):
+            self.deleteBlock(value)
+        elif keyword == 'delete':
+            self.delete()
+        elif keyword == 'move_me':
+            self.getParentBlock().moveBlockInList(self, value)
+
+    def generateMenu(self):
+        self.menu = VisualMenu.VisualMenu()
+        self.getMenuProperty().addItemIntoSubMenu(VisualMenu.VisualMenuItem('move_me', 'up', 'Up'), 'Move')
+        self.getMenuProperty().addItemIntoSubMenu(VisualMenu.VisualMenuItem('move_me', 'down', 'Down'), 'Move')
+        self.getMenuProperty().addItem(VisualMenu.VisualMenuItem('delete', self.getUID(), 'Delete'))
+
+    def getMenuProperty(self):
+        """:rtype: VisualMenu.VisualMenu"""
+        return self.menu
+
+    def getMenu(self):
+        """:rtype: VisualMenu.VisualMenu"""
+        if self.menu is None:
+            self.generateMenu()
+        return self.menu

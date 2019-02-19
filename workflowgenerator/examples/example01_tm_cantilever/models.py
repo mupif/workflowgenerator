@@ -28,12 +28,52 @@ def getline(f):
 class thermal(mupif.Application.Application):
     """ Simple stationary heat transport solver on rectangular domains"""
 
-    def __init__(self, file="", workdir="."):
-        super(thermal, self).__init__(file, workdir)
+    def __init__(self):
+        super(thermal, self).__init__()
         self.morphologyType = None
         self.conductivity = mupif.Property.ConstantProperty(1, mupif.PropertyID.PID_effective_conductivity,
                                                             mupif.ValueType.Scalar, 'W/m/K')
         self.tria = False
+
+        # self.setMetadata('Model.Model_ID', '1')
+        # self.setMetadata('Model.Model_name', 'Thermal')
+        # self.setMetadata('Model.Model_description',
+        #                  'Stationary heat conduction using finite elements on rectangular domain')
+        # self.setMetadata('Model.Model_material', 'Isotropic heat conducting material')
+        # self.setMetadata('Model.Model_type', 'Continuum')
+        # self.setMetadata('Model.Model_geometry', '2D rectangle')
+        # self.setMetadata('Model.Model_time_lapse', 'seconds')
+        # self.setMetadata('Model.Model_manufacturing_service', 'Temperature')
+        # self.setMetadata('Model.Model_publication', 'Felippa: Introduction to finite element methods, 2004')
+        # self.setMetadata('Model.Model_entity', ['Finite volume'])
+        # self.setMetadata('Model.Model_equation', ['Heat balance'])
+        # self.setMetadata('Model.Model_equation_quantities', ['Temperature', 'Heat-flow'])
+        # self.setMetadata('Model.Model_relation_formulation', ['Flow-gradient'])
+        # self.setMetadata('Model.Model_relation_description ', ['Conservation of energy'])
+        # self.setMetadata('Model.Model_numerical_solver', 'Finite element method')
+        # self.setMetadata('Model.Model_numerical_solver_additional_params',
+        #                  'Time step, finite difference discretization of the time derivative')
+        # self.setMetadata('Model.Solver_name', 'Stationary thermal solver')
+        # self.setMetadata('Model.Solver_version_date', '1.0, Dec 31 2018')
+        # self.setMetadata('Model.Solver_license', 'None')
+        # self.setMetadata('Model.Solver_creator', 'Borek Patzak')
+        # self.setMetadata('Model.Solver_language', 'Python')
+        # self.setMetadata('Model.Solver_time_step', 'seconds')
+        # self.setMetadata('Model.Model_computational_representation', 'Finite element')
+        # self.setMetadata('Model.Model_boundary_conditions', 'Dirichlet, Neumann')
+        # self.setMetadata('Model.Accuracy', 0.75)
+        # self.setMetadata('Model.Sensitivity', 'Medium')
+        # self.setMetadata('Model.Complexity', 'Low')
+        # self.setMetadata('Model.Robustness', 'High')
+        # self.setMetadata('Model.Estimated_execution cost', '0.01€')
+        # self.setMetadata('Model.Estimated_personnel cost', '0.01€')
+        # self.setMetadata('Model.Required_expertise', 'User')
+        # self.setMetadata('Model.Estimated_computational_time', 'Seconds')
+        # self.setMetadata('Model.Required expertise', 'User')
+        # self.setMetadata('Model.Inputs_and_relation_to_Data',
+        #                  ['Boundary temperature', 1, 'Scalar', '', 'Ambient temperature on edges with heat convection'])
+        # self.setMetadata('Model.Outputs_and_relation_to_Data',
+        #                  ['Temperature field', 1, 'Field', 'Resulting thermal field'])
 
         self.metadata.update({'name': 'thermal_nonstat', 'type': '',
                               'inputs': [
@@ -66,6 +106,9 @@ class thermal(mupif.Application.Application):
                                   {'name': 'temperature', 'obj_type': 'mupif.FieldID.FID_Temperature', 'type': 'Field',
                                    'optional': True}
                               ]})
+
+    def initialize(self, file='', workdir='', executionID=None, metaData={}, **kwargs):
+        mupif.Application.Application.initialize(self, file, workdir, executionID, metaData, **kwargs)
 
         if self.file != "":
             self.readInput()
@@ -550,8 +593,8 @@ class thermal(mupif.Application.Application):
 class thermal_nonstat(thermal):
     """ Simple non-stationary (transient) heat transport solver on rectangular domains"""
 
-    def __init__(self, file="", workdir="."):
-        super(thermal_nonstat, self).__init__(file, workdir)
+    def __init__(self):
+        super(thermal_nonstat, self).__init__()
         self.capacity = 1.0  # J/kg/K
         self.density = 1.0
         self.Tau = 0.5
@@ -588,6 +631,9 @@ class thermal_nonstat(thermal):
                                   {'name': 'temperature', 'obj_type': 'mupif.FieldID.FID_Temperature', 'type': 'Field',
                                    'optional': True}
                               ]})
+
+    def initialize(self, file='', workdir='', executionID=None, metaData={}, **kwargs):
+        mupif.Application.Application.initialize(self, file, workdir, executionID, metaData, **kwargs)
 
         if self.file != "":
             self.readInput(tria=True)
@@ -828,8 +874,8 @@ class thermal_nonstat(thermal):
 class mechanical(mupif.Application.Application):
     """ Simple mechanical solver on 2D rectanglar domain (plane stress problem) """
 
-    def __init__(self, file="", workdir="."):
-        super(mechanical, self).__init__(file, workdir)
+    def __init__(self):
+        super(mechanical, self).__init__()
         self.E = 30.0e+9  # ceramics
         self.nu = 0.25  # ceramics
         self.fx = [0., 0., 0., 0.]  # load in x
@@ -847,6 +893,9 @@ class mechanical(mupif.Application.Application):
                                   {'name': 'displacement', 'obj_type': 'mupif.FieldID.FID_Displacement', 'type': 'Field',
                                    'optional': True}
                               ]})
+
+    def initialize(self, file='', workdir='', executionID=None, metaData={}, **kwargs):
+        mupif.Application.Application.initialize(self, file, workdir, executionID, metaData, **kwargs)
 
         if self.file != "":
             self.readInput()

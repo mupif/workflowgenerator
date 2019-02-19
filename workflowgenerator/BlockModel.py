@@ -3,6 +3,7 @@ from . import tools
 from . import Block
 from . import DataSlot
 from . import BlockWorkflow
+from . import VisualMenu
 
 import os
 import inspect
@@ -47,6 +48,17 @@ class BlockModel (Block.Block):
 
     def getInitCode(self, indent=0):
         """
+        Generates the __init__ code of this block.
+        :param int indent: number of indents to be added before each line
+        :return: list of code lines
+        :rtype: str[]
+        """
+        code = Block.Block.getInitCode(self)
+        code.append("self.%s = %s.%s()" % (self.code_name, self.model_module, self.name))
+        return tools.push_indents_before_each_line(code, indent)
+
+    def getInitializationCode(self, indent=0):
+        """
         Generates the initialization code of this block.
         :param int indent: number of indents to be added before each line
         :return: list of code lines
@@ -56,8 +68,7 @@ class BlockModel (Block.Block):
         input_file_add = ""
         if self.input_file_name != "":
             input_file_add = "file='%s', workdir='%s'" % (self.input_file_name, self.input_file_directory)
-        # code.append("self.%s = %s(%s)" % (self.code_name, self.name, input_file_add))
-        code.append("self.%s = %s.%s(%s)" % (self.code_name, self.model_module, self.name, input_file_add))
+        code.append("self.%s.initialize(%s)" % (self.code_name, input_file_add))
         return tools.push_indents_before_each_line(code, indent)
 
     def getExecutionCode(self, indent=0, time='', timestep='tstep'):
@@ -155,7 +166,39 @@ class BlockModel (Block.Block):
             return "self.%s.get(%s, %s, %s)" % (self.code_name, slot.obj_type, time, obj_id)
         return "None"
 
+    # ------------------------------------------------------------------------------------------
+    # support functions for visualisation
+    # ------------------------------------------------------------------------------------------
+
+    def getLabels(self):
+        """:rtype: list of str"""
+        if self.input_file_name == "":
+            return []
+        else:
+            return ["input_file = '%s'\npath = '%s'" % (self.input_file_name, self.input_file_directory)]
+
     def getHeaderText(self):
         """:rtype: str"""
         return "%s - %s" % (self.__class__.__name__, self.name)
+
+    def modificationQuery(self, keyword, value=None):
+        """
+        :param str keyword:
+        :param value:
+        """
+        if keyword == 'set_input_file' and isinstance(value, str):
+            self.setInputFile(value)
+        elif keyword == 'set_input_file_path' and isinstance(value, str):
+            self.setInputFilePath(value)
+        else:
+            Block.Block.modificationQuery(self, keyword, value)
+
+    def generateMenu(self):
+        Block.Block.generateMenu(self)
+
+        self.getMenuProperty().addItemIntoSubMenu(VisualMenu.VisualMenuItem(
+            'set_input_file', None, "Set input file", "str", "Set input file"), 'Modify')
+
+        self.getMenuProperty().addItemIntoSubMenu(VisualMenu.VisualMenuItem(
+            'set_input_file_path', None, "Set path", "str", "Set path"), 'Modify')
 

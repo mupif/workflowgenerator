@@ -1,35 +1,41 @@
 import mupif
 from . import tools
 from . import Block
+from . import BlockSequentional
 from . import DataSlot
 from . import DataLink
 from . import BlockModel
+from . import VisualMenu
 
 import os
 import inspect
 import importlib.util
 
 
-class BlockWorkflow (Block.Block):
+class BlockWorkflow (BlockSequentional.BlockSequentional):
 
     list_of_models = []
     list_of_model_dependencies = []
     list_of_block_classes = []
 
     def __init__(self):
-        Block.Block.__init__(self)
+        BlockSequentional.BlockSequentional.__init__(self)
         self.datalinks = []
+        self.loadListOfBlockClasses()
+
+    def loadListOfBlockClasses(self):
+        BlockWorkflow.list_of_block_classes = []
+        BlockWorkflow.list_of_block_classes.append(BlockWorkflow)
+        BlockWorkflow.list_of_block_classes.append(BlockModel.BlockModel)
 
     def getWorkflowBlock(self):
         """
-        :return:
         :rtype: BlockWorkflow.BlockWorkflow
         """
         return self
 
     def getParentBlock(self):
         """
-        :return:
         :rtype: None
         """
         return None
@@ -76,7 +82,6 @@ class BlockWorkflow (Block.Block):
     def getAllExternalDataSlots(self, only=""):
         """
         :param string only: "in" or "out"
-        :return:
         :rtype: list of DataSlot.ExternalOutputDataSlot, DataSlot.ExternalInputDataSlot
         """
         eds = []  #: :type: list of (DataSlot.ExternalOutputDataSlot, DataSlot.ExternalInputDataSlot)
@@ -97,7 +102,6 @@ class BlockWorkflow (Block.Block):
         """
         :param DataSlot.DataSlot slot:
         :param str time:
-        :return:
         :rtype: str
         """
         return slot.getCodeRepresentation()
@@ -123,6 +127,10 @@ class BlockWorkflow (Block.Block):
         code.append("")
         code.append("")
         code.append("class %s(mupif.Workflow.Workflow):" % workflow_classname)
+
+        # __init__ function
+
+        code.append("\t")
         code.append("\tdef __init__(self):")
         code.append("\t\tmupif.Workflow.Workflow.__init__(self)")
 
@@ -171,6 +179,14 @@ class BlockWorkflow (Block.Block):
 
         for model in self.getBlocksRecursive():
             code.extend(model.getInitCode(2))
+
+        # initialize function
+
+        code.append("\t")
+        code.append("\tdef initialize(self, file='', workdir='', executionID=None, metaData={}, **kwargs):")
+        code.append("\t\tmupif.Workflow.Workflow.initialize(self, file, workdir, executionID, metaData, **kwargs)")
+        for model in all_model_blocks:
+            code.extend(model.getInitializationCode(2))
 
         # get critical time step
 
@@ -332,7 +348,6 @@ class BlockWorkflow (Block.Block):
 
     def getDataLinks(self):
         """
-        :return:
         :rtype: list of DataLink.DataLink
         """
         return self.datalinks
@@ -352,6 +367,51 @@ class BlockWorkflow (Block.Block):
         if idx is not None:
             del self.datalinks[idx]
 
+    @staticmethod
+    def getListOfModels():
+        """:rtype: list of class"""
+        return BlockWorkflow.list_of_models
 
+    @staticmethod
+    def getListOfBlockClasses():
+        """:rtype: list of class"""
+        return BlockWorkflow.list_of_block_classes
 
+    def getBlockWithUID(self, uid):
+        """
+        :param str uid:
+        :rtype: Block.Block
+        """
+        for block in self. getBlocksRecursive():
+            if block.getUID() == uid:
+                return block
+        return None
 
+    def getSlotWithUID(self, uid):
+        for slot in self. getSlotsRecursive():
+            if slot.getUID() == uid:
+                return slot
+        return None
+
+    def connectSlotsWithUID(self, uid_1, uid_2):
+        slot_1 = self.getSlotWithUID(uid_1)
+        slot_2 = self.getSlotWithUID(uid_2)
+        if isinstance(slot_1, DataSlot.DataSlot) and isinstance(slot_2, DataSlot.DataSlot):
+            slot_1.connectTo(slot_2)
+
+    # ------------------------------------------------------------------------------------------
+    # support functions for visualisation
+    # ------------------------------------------------------------------------------------------
+    
+    def modificationQueryForItemWithUID(self, uid, keyword, value=None):
+        """
+        :param str keyword:
+        :param value:
+        """
+        elem = self.getBlockWithUID(uid)
+        if elem is not None:
+            elem.modificationQuery(keyword, value)
+
+    def generateMenu(self):
+        self.menu = VisualMenu.VisualMenu()
+        self.generateAddBlockMenuItems()

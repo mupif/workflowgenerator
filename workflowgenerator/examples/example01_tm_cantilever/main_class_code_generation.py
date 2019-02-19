@@ -47,9 +47,6 @@ if __name__ == '__main__':
     model1.getDataSlotWithName('top edge temperature convection').connectTo(
         workflow.getDataSlotWithName('top_temperature'))
 
-    print(model1.getDataSlotWithName('bottom edge temperature Dirichlet'))
-    print(property1.getDataSlotWithName('value'))
-
     model1.getDataSlotWithName('bottom edge temperature Dirichlet').connectTo(
         property1.getDataSlotWithName('value'))
     model1.getDataSlotWithName('left edge temperature Dirichlet').connectTo(
