@@ -44,7 +44,7 @@ if __name__ == '__main__':
     model1.getDataSlotWithName('temperature').connectTo(workflow.getDataSlotWithName('temperature'))
     model2.getDataSlotWithName('displacement').connectTo(workflow.getDataSlotWithName('displacement'))
 
-    model1.getDataSlotWithName('top edge temperature convection').connectTo(
+    model1.getDataSlotWithName('top edge temperature Cauchy').connectTo(
         workflow.getDataSlotWithName('top_temperature'))
 
     model1.getDataSlotWithName('bottom edge temperature Dirichlet').connectTo(

@@ -22,8 +22,6 @@ class DataSlotType(Enum):
     String = 13
     Bool = 14
 
-    Scalar = 111
-
     @staticmethod
     def getTypeFromName(val):
         for t in DataSlotType:
@@ -40,11 +38,11 @@ class DataSlotType(Enum):
 
 
 class DataSlot:
-    def __init__(self, name, type, optional=False, obj_type=None, obj_id=0):
+    def __init__(self, name, type, required=True, obj_type=None, obj_id=0):
         self.name = name
         self.parent_block = None
         self.type = type
-        self.optional = optional
+        self.required = required
         self.external = False
         self.obj_type = obj_type
         self.obj_id = obj_id
@@ -52,9 +50,9 @@ class DataSlot:
         self.code_name = ""
 
         if isinstance(self, OutputDataSlot):
-            self.optional = True
+            self.required = False
         if isinstance(self, ExternalInputDataSlot) or isinstance(self, ExternalOutputDataSlot):
-            self.optional = True
+            self.required = False
             self.external = True
 
         self.uid = str(uuid.uuid4())
@@ -73,7 +71,11 @@ class DataSlot:
 
     def getOptional(self):
         """ :rtype: bool """
-        return self.optional
+        return not self.required
+
+    def getRequired(self):
+        """ :rtype: bool """
+        return self.required
 
     def getExternal(self):
         """ :rtype: bool """
@@ -90,7 +92,7 @@ class DataSlot:
     def connectedInfo(self):
         if self.connected():
             connect_info = colored("connected", "green")
-        elif self.optional:
+        elif self.getOptional():
             connect_info = "not-connected"
         else:
             connect_info = colored("not-connected", "red")
@@ -194,6 +196,9 @@ class DataSlot:
             return self.getParentBlock().getUID()
 
     def getDictForJSON(self):
+        """
+        :rtype: dict
+        """
         answer = {'classname': self.__class__.__name__, 'uuid': self.uid, 'parent_uuid': self.getParentUUID()}
         answer.update({'name': self.name, 'type': "%s" % DataSlotType.getNameFromType(self.type)})
         answer.update({'obj_id': self.obj_id, 'obj_type': "%s" % self.obj_type})
@@ -225,21 +230,21 @@ class InputDataSlot (DataSlot):
     """
     Class describing input parameter of block
     """
-    def __init__(self, name, type, optional=False, obj_type=None, obj_id=0):
-        DataSlot.__init__(self, name, type, optional, obj_type, obj_id)
+    def __init__(self, name, type, required=True, obj_type=None, obj_id=0):
+        DataSlot.__init__(self, name, type, required, obj_type, obj_id)
 
 
 class OutputDataSlot (DataSlot):
     """
     Class describing output parameter of block
     """
-    def __init__(self, name, type, optional=False, obj_type=None, obj_id=0):
-        DataSlot.__init__(self, name, type, optional, obj_type, obj_id)
+    def __init__(self, name, type, required=True, obj_type=None, obj_id=0):
+        DataSlot.__init__(self, name, type, required, obj_type, obj_id)
 
 
 class ExternalInputDataSlot(InputDataSlot):
-    def __init__(self, name, type, optional=True, obj_type=None, obj_id=0):
-        InputDataSlot.__init__(self, name, type, optional, obj_type, obj_id)
+    def __init__(self, name, type, required=False, obj_type=None, obj_id=0):
+        InputDataSlot.__init__(self, name, type, required, obj_type, obj_id)
         self.obj_id = self.name
 
     def generateCodeName(self, base_name='external_output_'):
@@ -257,8 +262,8 @@ class ExternalInputDataSlot(InputDataSlot):
 
 
 class ExternalOutputDataSlot(OutputDataSlot):
-    def __init__(self, name, type, optional=True, obj_type=None, obj_id=0):
-        OutputDataSlot.__init__(self, name, type, optional, obj_type, obj_id)
+    def __init__(self, name, type, required=False, obj_type=None, obj_id=0):
+        OutputDataSlot.__init__(self, name, type, required, obj_type, obj_id)
         self.obj_id = self.name
 
     def generateCodeName(self, base_name='external_input_'):

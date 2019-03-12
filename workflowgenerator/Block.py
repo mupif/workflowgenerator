@@ -178,6 +178,9 @@ class Block:
         return ""
 
     def getDictForJSON(self):
+        """
+        :rtype: dict
+        """
         answer = {'classname': self.__class__.__name__, 'uuid': self.uuid, 'parent_uuid': self.getParentUUID()}
         return answer
 

@@ -19,6 +19,9 @@ class BlockConstProperty (Block.Block):
         self.objectID = 0
 
     def getDictForJSON(self):
+        """
+        :rtype: dict
+        """
         answer = Block.Block.getDictForJSON(self)
         answer.update({'value': self.value})
         answer.update({'propID': str(self.propID)})

@@ -69,7 +69,7 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
 
     def checkConsistency(self, execution=False):
         for ds in self.getSlotsRecursive():
-            if not ds.optional and not ds.connected():
+            if not ds.getOptional() and not ds.connected():
                 print("Some compulsory DataSlots are not connected.")
                 return False
             if execution and (isinstance(ds, DataSlot.ExternalInputDataSlot)
@@ -114,6 +114,8 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
 
         #
 
+        num_of_external_input_dataslots = 0
+
         self.generateAllElementCodeNames()
 
         all_model_blocks = self.getBlocksRecursive(BlockModel.BlockModel)
@@ -121,8 +123,11 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
 
         code = ["import mupif"]
 
+        printed_dependencies = []
         for model in all_model_blocks:
-            code.append(model.getModelDependency())
+            if model.getModelDependency() not in printed_dependencies:
+                code.append(model.getModelDependency())
+                printed_dependencies.append(model.getModelDependency())
 
         code.append("")
         code.append("")
@@ -132,32 +137,50 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
 
         code.append("\t")
         code.append("\tdef __init__(self):")
-        code.append("\t\tmupif.Workflow.Workflow.__init__(self)")
+
+        code.append("\t\tmetaData = {")
+        # code.append("\t\t\t'Name': '%s'," % workflow_classname)
+        # code.append("\t\t\t'ID': 'Thermo-mechanical-1',")
+        # code.append("\t\t\t'Description': '',")
+        # code.append("\t\t\t'Model_refs_ID': ['NonStatThermo-1', 'Mechanical-1'],")
+        # code.append("\t\t\t'Boundary_conditions': '',")
+        code.append("\t\t\t'Input_types': [")
+
+        code.append("\t\t\t],")
+        code.append("\t\t\t'Output_types': [")
+
+        code.append("\t\t\t],")
+        # code.append("\t\t\t'Solver': {")
+        # code.append("\t\t\t\t'Accuracy': '',")
+        # code.append("\t\t\t\t'Sensitivity': '',")
+        # code.append("\t\t\t\t'Complexity': '',")
+        # code.append("\t\t\t\t'Robustness': '',")
+        # code.append("\t\t\t\t'Estim_time_step': 1,")
+        # code.append("\t\t\t\t'Estim_comp_time': 1.e-3,")
+        # code.append("\t\t\t\t'Estim_execution_cost': 0.01,")
+        # code.append("\t\t\t\t'Estim_personnel_cost': 0.01,")
+        # code.append("\t\t\t\t'Required_expertise': 'None',")
+        # code.append("\t\t\t\t'Language': 'Python',")
+        # code.append("\t\t\t\t'License': 'LGPL',")
+        # code.append("\t\t\t\t'Creator': '',")
+        # code.append("\t\t\t\t'Version_date': '',")
+        # code.append("\t\t\t\t'Documentation': '',")
+        # code.append("\t\t\t}")
+        code.append("\t\t}")
+
+        code.append("\t\tmupif.Workflow.Workflow.__init__(self, metaData=metaData)")
 
         # metadata
 
         if class_code:
-            code.append("\t\tself.metadata.update({'name': '%s'})" % workflow_classname)
+            code.append("\t\tself.metadata.update({'Name': '%s'})" % workflow_classname)
 
             code_add = ""
             for s in self.getAllExternalDataSlots("out"):
                 if s.connected():
-                    params = "'name': '%s', 'type': '%s', 'optional': %s, 'description': '%s', 'obj_type': '%s', " \
-                             "'obj_id': '%s'" % (
-                                s.name, DataSlot.DataSlotType.getNameFromType(s.type), False, "",
-                                s.getLinkedDataSlot().obj_type, s.obj_id)
-
-                    if code_add != "":
-                        code_add = "%s, " % code_add
-                    code_add = "%s{%s}" % (code_add, params)
-
-            code.append("\t\tself.metadata.update({'inputs': [%s]})" % code_add)
-
-            code_add = ""
-            for s in self.getAllExternalDataSlots("in"):
-                if s.connected():
-                    params = "'name': '%s', 'type': '%s', 'optional': %s, 'description': '%s', 'obj_type': '%s', " \
-                             "'obj_id': '%s'" % (
+                    num_of_external_input_dataslots += 1
+                    params = "'Name': '%s', 'Type': '%s', 'required': %s, 'description': '%s', 'Type_ID': '%s', " \
+                             "'Object_ID': '%s', 'ID': 0, 'Units': ''" % (
                                 s.name, DataSlot.DataSlotType.getNameFromType(s.type), True, "",
                                 s.getLinkedDataSlot().obj_type, s.obj_id)
 
@@ -165,7 +188,21 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
                         code_add = "%s, " % code_add
                     code_add = "%s{%s}" % (code_add, params)
 
-            code.append("\t\tself.metadata.update({'outputs': [%s]})" % code_add)
+            code.append("\t\tself.metadata.update({'Input_types': [%s]})" % code_add)
+
+            code_add = ""
+            for s in self.getAllExternalDataSlots("in"):
+                if s.connected():
+                    params = "'Name': '%s', 'Type': '%s', 'required': %s, 'description': '%s', 'Type_ID': '%s', " \
+                             "'Object_ID': '%s', 'ID': 0, 'Units': ''" % (
+                                s.name, DataSlot.DataSlotType.getNameFromType(s.type), False, "",
+                                s.getLinkedDataSlot().obj_type, s.obj_id)
+
+                    if code_add != "":
+                        code_add = "%s, " % code_add
+                    code_add = "%s{%s}" % (code_add, params)
+
+            code.append("\t\tself.metadata.update({'Output_types': [%s]})" % code_add)
 
             # initialization of workflow inputs
             for s in self.getAllExternalDataSlots("out"):
@@ -183,8 +220,17 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         # initialize function
 
         code.append("\t")
-        code.append("\tdef initialize(self, file='', workdir='', executionID=None, metaData={}, **kwargs):")
-        code.append("\t\tmupif.Workflow.Workflow.initialize(self, file, workdir, executionID, metaData, **kwargs)")
+        code.append(
+            "\tdef initialize(self, file='', workdir='', executionID=None, metaData={}, validateMetaData=False, "
+            "**kwargs):"
+        )
+
+        code.append("\t\t")
+
+        code.append(
+            "\t\tmupif.Workflow.Workflow.initialize(self, file, workdir, executionID, metaData, validateMetaData, "
+            "**kwargs)"
+        )
         for model in all_model_blocks:
             code.extend(model.getInitializationCode(2))
 
@@ -314,12 +360,14 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
 
         # execution
 
-        if not class_code:
-            code.append("problem = %s()" % workflow_classname)
-            code.append("problem.solve()")
-            code.append("")
-            code.append("print('Simulation has finished.')")
-            code.append("")
+        if not class_code or num_of_external_input_dataslots == 0:
+            code.append("if __name__ == '__main__':")
+            code.append("\tproblem = %s()" % workflow_classname)
+            code.append("\tproblem.initialize()")
+            code.append("\tproblem.solve()")
+            code.append("\tproblem.terminate()")
+            code.append("\t")
+            code.append("\tprint('Simulation has finished.')")
             code.append("")
 
         return tools.replace_tabs_with_spaces_for_each_line(code)

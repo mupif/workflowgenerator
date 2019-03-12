@@ -25,90 +25,79 @@ def getline(f):
 
 
 @Pyro4.expose
-class thermal(mupif.Application.Application):
+class thermal(mupif.Model.Model):
     """ Simple stationary heat transport solver on rectangular domains"""
 
-    def __init__(self):
-        super(thermal, self).__init__()
+    def __init__(self, metaData={}):
+        if len(metaData) == 0:
+            metaData = {
+                'Name': 'Stationary thermal problem',
+                'ID': 'Thermo-1',
+                'Description': 'Stationary heat conduction using finite elements on rectangular domain',
+                'Geometry': '2D rectangle',
+                'Boundary_conditions': 'Dirichlet, Neumann',
+                'Input_types': [
+                    {'Name': 'top edge temperature Cauchy', 'Type': 'Property', 'required': False,
+                     'Type_ID': 'mupif.FieldID.FID_Temperature', 'Object_ID': 3},
+                    {'Name': 'top edge temperature Dirichlet', 'Type': 'Property', 'required': False,
+                     'Type_ID': 'mupif.FieldID.FID_Temperature', 'Object_ID': 13},
+                    {'Name': 'bottom edge temperature Cauchy', 'Type': 'Property', 'required': False,
+                     'Type_ID': 'mupif.FieldID.FID_Temperature', 'Object_ID': 1},
+                    {'Name': 'bottom edge temperature Dirichlet', 'Type': 'Property', 'required': False,
+                     'Type_ID': 'mupif.FieldID.FID_Temperature', 'Object_ID': 11},
+                    {'Name': 'left edge temperature Cauchy', 'Type': 'Property', 'required': False,
+                     'Type_ID': 'mupif.FieldID.FID_Temperature', 'Object_ID': 4},
+                    {'Name': 'left edge temperature Dirichlet', 'Type': 'Property', 'required': False,
+                     'Type_ID': 'mupif.FieldID.FID_Temperature', 'Object_ID': 14},
+                    {'Name': 'right edge temperature Cauchy', 'Type': 'Property', 'required': False,
+                     'Type_ID': 'mupif.FieldID.FID_Temperature', 'Object_ID': 2},
+                    {'Name': 'right edge temperature Dirichlet', 'Type': 'Property', 'required': False,
+                     'Type_ID': 'mupif.FieldID.FID_Temperature', 'Object_ID': 12}
+                ],
+                'Output_types': [
+                    {'Name': 'temperature', 'Type_ID': 'mupif.FieldID.FID_Temperature', 'Type': 'Field',
+                     'required': False}
+                ],
+                'Solver': {
+                    'Software': 'own',
+                    'Type': 'Finite elements',
+                    'Accuracy': 'Medium',
+                    'Sensitivity': 'Low',
+                    'Complexity': 'Low',
+                    'Robustness': 'High',
+                    'Estim_time_step': 1,
+                    'Estim_comp_time': 1.e-3,
+                    'Estim_execution_cost': 0.01,
+                    'Estim_personnel_cost': 0.01,
+                    'Required_expertise': 'None',
+                    'Language': 'Python',
+                    'License': 'LGPL',
+                    'Creator': 'Borek Patzak',
+                    'Version_date': '1.0.0, Feb 2019',
+                    'Documentation': 'Felippa: Introduction to finite element methods, 2004',
+                },
+                'Physics': {
+                    'Type': 'Continuum',
+                    'Entity': ['Finite volume'],
+                    'Equation': ['Heat balance'],
+                    'Equation_quantities': ['Heat flow'],
+                    'Relation_description': ['Fick\'s first law'],
+                    'Relation_formulation': ['Flow induced by thermal gradient on isotropic material'],
+                    'Representation': 'Finite volumes'
+                }
+            }
+        super(thermal, self).__init__(metaData)
         self.morphologyType = None
         self.conductivity = mupif.Property.ConstantProperty(1, mupif.PropertyID.PID_effective_conductivity,
                                                             mupif.ValueType.Scalar, 'W/m/K')
         self.tria = False
 
-        # self.setMetadata('Model.Model_ID', '1')
-        # self.setMetadata('Model.Model_name', 'Thermal')
-        # self.setMetadata('Model.Model_description',
-        #                  'Stationary heat conduction using finite elements on rectangular domain')
-        # self.setMetadata('Model.Model_material', 'Isotropic heat conducting material')
-        # self.setMetadata('Model.Model_type', 'Continuum')
-        # self.setMetadata('Model.Model_geometry', '2D rectangle')
-        # self.setMetadata('Model.Model_time_lapse', 'seconds')
-        # self.setMetadata('Model.Model_manufacturing_service', 'Temperature')
-        # self.setMetadata('Model.Model_publication', 'Felippa: Introduction to finite element methods, 2004')
-        # self.setMetadata('Model.Model_entity', ['Finite volume'])
-        # self.setMetadata('Model.Model_equation', ['Heat balance'])
-        # self.setMetadata('Model.Model_equation_quantities', ['Temperature', 'Heat-flow'])
-        # self.setMetadata('Model.Model_relation_formulation', ['Flow-gradient'])
-        # self.setMetadata('Model.Model_relation_description ', ['Conservation of energy'])
-        # self.setMetadata('Model.Model_numerical_solver', 'Finite element method')
-        # self.setMetadata('Model.Model_numerical_solver_additional_params',
-        #                  'Time step, finite difference discretization of the time derivative')
-        # self.setMetadata('Model.Solver_name', 'Stationary thermal solver')
-        # self.setMetadata('Model.Solver_version_date', '1.0, Dec 31 2018')
-        # self.setMetadata('Model.Solver_license', 'None')
-        # self.setMetadata('Model.Solver_creator', 'Borek Patzak')
-        # self.setMetadata('Model.Solver_language', 'Python')
-        # self.setMetadata('Model.Solver_time_step', 'seconds')
-        # self.setMetadata('Model.Model_computational_representation', 'Finite element')
-        # self.setMetadata('Model.Model_boundary_conditions', 'Dirichlet, Neumann')
-        # self.setMetadata('Model.Accuracy', 0.75)
-        # self.setMetadata('Model.Sensitivity', 'Medium')
-        # self.setMetadata('Model.Complexity', 'Low')
-        # self.setMetadata('Model.Robustness', 'High')
-        # self.setMetadata('Model.Estimated_execution cost', '0.01€')
-        # self.setMetadata('Model.Estimated_personnel cost', '0.01€')
-        # self.setMetadata('Model.Required_expertise', 'User')
-        # self.setMetadata('Model.Estimated_computational_time', 'Seconds')
-        # self.setMetadata('Model.Required expertise', 'User')
-        # self.setMetadata('Model.Inputs_and_relation_to_Data',
-        #                  ['Boundary temperature', 1, 'Scalar', '', 'Ambient temperature on edges with heat convection'])
-        # self.setMetadata('Model.Outputs_and_relation_to_Data',
-        #                  ['Temperature field', 1, 'Field', 'Resulting thermal field'])
+        self.tria = False
+        self.dirichletModelEdges = []
+        self.convectionModelEdges = []
 
-        self.metadata.update({'name': 'thermal_nonstat', 'type': '',
-                              'inputs': [
-                                  {'name': 'top edge temperature Cauchy', 'type': 'Property', 'optional': True,
-                                   'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 3},
-                                  # {'name': 'top edge temperature Cauchy coef', 'type': 'Property', 'optional': True,
-                                  #  'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 23},
-                                  {'name': 'top edge temperature Dirichlet', 'type': 'Property', 'optional': True,
-                                   'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 13},
-                                  {'name': 'bottom edge temperature Cauchy', 'type': 'Property', 'optional': True,
-                                   'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 1},
-                                  # {'name': 'bottom edge temperature Cauchy coef', 'type': 'Property', 'optional': True,
-                                  #  'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 21},
-                                  {'name': 'bottom edge temperature Dirichlet', 'type': 'Property', 'optional': True,
-                                   'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 11},
-                                  {'name': 'left edge temperature Cauchy', 'type': 'Property', 'optional': True,
-                                   'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 4},
-                                  # {'name': 'left edge temperature Cauchy coef', 'type': 'Property', 'optional': True,
-                                  #  'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 24},
-                                  {'name': 'left edge temperature Dirichlet', 'type': 'Property', 'optional': True,
-                                   'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 14},
-                                  {'name': 'right edge temperature Cauchy', 'type': 'Property', 'optional': True,
-                                   'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 2},
-                                  # {'name': 'right edge temperature Cauchy coef', 'type': 'Property', 'optional': True,
-                                  #  'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 22},
-                                  {'name': 'right edge temperature Dirichlet', 'type': 'Property', 'optional': True,
-                                   'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 12}
-                              ],
-                              'outputs': [
-                                  {'name': 'temperature', 'obj_type': 'mupif.FieldID.FID_Temperature', 'type': 'Field',
-                                   'optional': True}
-                              ]})
-
-    def initialize(self, file='', workdir='', executionID=None, metaData={}, **kwargs):
-        mupif.Application.Application.initialize(self, file, workdir, executionID, metaData, **kwargs)
+    def initialize(self, file='', workdir='', executionID=None, metaData={}, validateMetaData=False, **kwargs):
+        super().initialize(file, workdir, executionID, metaData, validateMetaData, **kwargs)
 
         if self.file != "":
             self.readInput()
@@ -117,8 +106,9 @@ class thermal(mupif.Application.Application):
         self.tria = tria
         self.dirichletModelEdges = []
         self.convectionModelEdges = []
+
+        lines = []
         try:
-            lines = []
             for line in open(self.workDir + os.path.sep + self.file, 'r'):
                 if not line.startswith('#'):
                     lines.append(line)
@@ -594,46 +584,70 @@ class thermal_nonstat(thermal):
     """ Simple non-stationary (transient) heat transport solver on rectangular domains"""
 
     def __init__(self):
-        super(thermal_nonstat, self).__init__()
+        metaData = {
+            'Name': 'Non-stationary thermal problem',
+            'ID': 'NonStatThermo-1',
+            'Description': 'Non-stationary heat conduction using finite elements on a rectangular domain',
+            'Representation': 'Finite volumes',
+            'Geometry': '2D rectangle',
+            'Boundary_conditions': 'Dirichlet, Neumann',
+            'Input_types': [
+                {'Name': 'top edge temperature Cauchy', 'Type': 'Property', 'required': False,
+                 'Type_ID': 'mupif.FieldID.FID_Temperature', 'Object_ID': 3},
+                {'Name': 'top edge temperature Dirichlet', 'Type': 'Property', 'required': False,
+                 'Type_ID': 'mupif.FieldID.FID_Temperature', 'Object_ID': 13},
+                {'Name': 'bottom edge temperature Cauchy', 'Type': 'Property', 'required': False,
+                 'Type_ID': 'mupif.FieldID.FID_Temperature', 'Object_ID': 1},
+                {'Name': 'bottom edge temperature Dirichlet', 'Type': 'Property', 'required': False,
+                 'Type_ID': 'mupif.FieldID.FID_Temperature', 'Object_ID': 11},
+                {'Name': 'left edge temperature Cauchy', 'Type': 'Property', 'required': False,
+                 'Type_ID': 'mupif.FieldID.FID_Temperature', 'Object_ID': 4},
+                {'Name': 'left edge temperature Dirichlet', 'Type': 'Property', 'required': False,
+                 'Type_ID': 'mupif.FieldID.FID_Temperature', 'Object_ID': 14},
+                {'Name': 'right edge temperature Cauchy', 'Type': 'Property', 'required': False,
+                 'Type_ID': 'mupif.FieldID.FID_Temperature', 'Object_ID': 2},
+                {'Name': 'right edge temperature Dirichlet', 'Type': 'Property', 'required': False,
+                 'Type_ID': 'mupif.FieldID.FID_Temperature', 'Object_ID': 12}
+            ],
+            'Output_types': [
+                {'Name': 'temperature', 'Type_ID': 'mupif.FieldID.FID_Temperature', 'Type': 'Field', 'required': False}
+            ],
+            'Solver': {
+                'Software': 'own',
+                'Type': 'Finite elements',
+                'Accuracy': 'Medium',
+                'Sensitivity': 'Low',
+                'Complexity': 'Low',
+                'Robustness': 'High',
+                'Estim_time_step': 1,
+                'Estim_comp_time': 1.e-3,
+                'Estim_execution_cost': 0.01,
+                'Estim_personnel_cost': 0.01,
+                'Required_expertise': 'None',
+                'Language': 'Python',
+                'License': 'LGPL',
+                'Creator': 'Borek Patzak',
+                'Version_date': '1.0.0, Feb 2019',
+                'Documentation': 'Felippa: Introduction to finite element methods, 2004',
+            },
+            'Physics': {
+                'Type': 'Continuum',
+                'Entity': ['Finite volume'],
+                'Equation': ['Heat balance'],
+                'Equation_quantities': ['Heat flow'],
+                'Relation_description': ['Fick\'s first law'],
+                'Relation_formulation': ['Flow induced by thermal gradient on isotropic material'],
+                'Representation': 'Finite volumes'
+            }
+        }
+        super(thermal_nonstat, self).__init__(metaData)
         self.capacity = 1.0  # J/kg/K
         self.density = 1.0
         self.Tau = 0.5
         self.init = True
 
-        self.metadata.update({'name': 'thermal_nonstat', 'type': '',
-                              'inputs': [
-                                  {'name': 'top edge temperature convection', 'type': 'Property', 'optional': True,
-                                   'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 3},
-                                  # {'name': 'top edge temperature HT coef', 'type': 'Property', 'optional': True,
-                                  #  'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 23},
-                                  {'name': 'top edge temperature Dirichlet', 'type': 'Property', 'optional': True,
-                                   'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 13},
-                                  {'name': 'bottom edge temperature convection', 'type': 'Property', 'optional': True,
-                                   'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 1},
-                                  # {'name': 'bottom edge temperature HT coef', 'type': 'Property', 'optional': True,
-                                  #  'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 21},
-                                  {'name': 'bottom edge temperature Dirichlet', 'type': 'Property', 'optional': True,
-                                   'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 11},
-                                  {'name': 'left edge temperature convection', 'type': 'Property', 'optional': True,
-                                   'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 4},
-                                  # {'name': 'left edge temperature HT coef', 'type': 'Property', 'optional': True,
-                                  #  'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 24},
-                                  {'name': 'left edge temperature Dirichlet', 'type': 'Property', 'optional': True,
-                                   'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 14},
-                                  {'name': 'right edge temperature convection', 'type': 'Property', 'optional': True,
-                                   'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 2},
-                                  # {'name': 'right edge temperature HT coef', 'type': 'Property', 'optional': True,
-                                  #  'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 22},
-                                  {'name': 'right edge temperature Dirichlet', 'type': 'Property', 'optional': True,
-                                   'obj_type': 'mupif.FieldID.FID_Temperature', 'obj_id': 12}
-                              ],
-                              'outputs': [
-                                  {'name': 'temperature', 'obj_type': 'mupif.FieldID.FID_Temperature', 'type': 'Field',
-                                   'optional': True}
-                              ]})
-
-    def initialize(self, file='', workdir='', executionID=None, metaData={}, **kwargs):
-        mupif.Application.Application.initialize(self, file, workdir, executionID, metaData, **kwargs)
+    def initialize(self, file='', workdir='', executionID=None, metaData={}, validateMetaData=False, **kwargs):
+        super().initialize(file, workdir, executionID, metaData, validateMetaData, **kwargs)
 
         if self.file != "":
             self.readInput(tria=True)
@@ -871,11 +885,52 @@ class thermal_nonstat(thermal):
 
 
 @Pyro4.expose
-class mechanical(mupif.Application.Application):
+class mechanical(mupif.Model.Model):
     """ Simple mechanical solver on 2D rectanglar domain (plane stress problem) """
 
     def __init__(self):
-        super(mechanical, self).__init__()
+        metaData = {
+            'Name': 'Plane stress linear elastic',
+            'ID': 'Mechanical-1',
+            'Description': 'Plane stress problem with linear elastic thermo-elastic material',
+            'Geometry': '2D rectangle',
+            'Boundary_conditions': 'Dirichlet',
+            'Input_types': [
+                {'Name': 'temperature', 'Type_ID': 'mupif.FieldID.FID_Temperature', 'Type': 'Field', 'required': True}
+            ],
+            'Output_types': [
+                {'Name': 'displacement', 'Type_ID': 'mupif.FieldID.FID_Displacement',
+                 'Type': 'Field', 'required': False}
+            ],
+            'Solver': {
+                'Software': 'own',
+                'Type': 'Finite elements',
+                'Accuracy': 'Medium',
+                'Sensitivity': 'Low',
+                'Complexity': 'Low',
+                'Robustness': 'High',
+                'Estim_time_step': 1,
+                'Estim_comp_time': 1.e-3,
+                'Estim_execution_cost': 0.01,
+                'Estim_personnel_cost': 0.01,
+                'Required_expertise': 'None',
+                'Language': 'Python',
+                'License': 'LGPL',
+                'Creator': 'Borek Patzak',
+                'Version_date': '1.0.0, Feb 2019',
+                'Documentation': 'Felippa: Introduction to finite element methods, 2004',
+            },
+            'Physics': {
+                'Type': 'Continuum',
+                'Entity': ['Finite volume'],
+                'Equation': ['Equilibrium'],
+                'Equation_quantities': ['Displacement'],
+                'Relation_description': ['Hooke\'s law'],
+                'Relation_formulation': ['Stress strain'],
+                'Representation': 'Finite volumes'
+            }
+        }
+        super(mechanical, self).__init__(metaData)
         self.E = 30.0e+9  # ceramics
         self.nu = 0.25  # ceramics
         self.fx = [0., 0., 0., 0.]  # load in x
@@ -884,18 +939,20 @@ class mechanical(mupif.Application.Application):
         self.alpha = 12.e-6
         self.thick = 1.0
 
-        self.metadata.update({'name': 'mechanical', 'type': '',
-                              'inputs': [
-                                  {'name': 'temperature', 'obj_type': 'mupif.FieldID.FID_Temperature', 'type': 'Field',
-                                   'optional': False}
-                              ],
-                              'outputs': [
-                                  {'name': 'displacement', 'obj_type': 'mupif.FieldID.FID_Displacement', 'type': 'Field',
-                                   'optional': True}
-                              ]})
+        self.dirichletModelEdges = []
+        self.loadModelEdges = []
 
-    def initialize(self, file='', workdir='', executionID=None, metaData={}, **kwargs):
-        mupif.Application.Application.initialize(self, file, workdir, executionID, metaData, **kwargs)
+    def initialize(self, file='', workdir='', executionID=None, metaData={}, validateMetaData=False, **kwargs):
+        super().initialize(file, workdir, executionID, metaData, validateMetaData, **kwargs)
+
+        self.setMetadata('Inputs', [
+            {'Name': 'temperature', 'Type_ID': 'mupif.FieldID.FID_Temperature', 'Type': 'Field',
+             'required': True}
+        ])
+        self.setMetadata('Outputs', [{'Name': 'displacement', 'Type_ID': 'mupif.FieldID.FID_Displacement',
+                                      'Type': 'Field', 'required': False}])
+
+        # mupif.Model.Model.initialize(self, file, workdir, executionID, metaData, **kwargs)
 
         if self.file != "":
             self.readInput()

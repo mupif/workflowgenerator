@@ -16,6 +16,9 @@ class BlockConstPhysicalQuantity (Block.Block):
         self.units = None
 
     def getDictForJSON(self):
+        """
+        :rtype: dict
+        """
         answer = Block.Block.getDictForJSON(self)
         answer.update({'value': self.value})
         answer.update({'units': self.units})

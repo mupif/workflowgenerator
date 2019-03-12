@@ -32,6 +32,9 @@ class DataLink:
         return None
 
     def getDictForJSON(self):
+        """
+        :rtype: dict
+        """
         answer = {'classname': self.__class__.__name__, 'uuid': self.uid}
         answer.update({'ds1_uid': self.source.uid, 'ds2_uid': self.target.uid})
         return answer

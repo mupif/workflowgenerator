@@ -64,7 +64,7 @@ class BlockModel (Block.Block):
         :return: list of code lines
         :rtype: str[]
         """
-        code = Block.Block.getInitCode(self)
+        code = Block.Block.getInitializationCode(self)
         input_file_add = ""
         if self.input_file_name != "":
             input_file_add = "file='%s', workdir='%s'" % (self.input_file_name, self.input_file_directory)
@@ -86,6 +86,9 @@ class BlockModel (Block.Block):
         return tools.push_indents_before_each_line(code, indent)
 
     def getDictForJSON(self):
+        """
+        :rtype: dict
+        """
         answer = Block.Block.getDictForJSON(self)
         answer.update({'model_classname': self.name})
         answer.update({'model_input_file_name': self.input_file_name})
@@ -97,26 +100,33 @@ class BlockModel (Block.Block):
         self.input_file_name = json_data['model_input_file_name']
         self.input_file_directory = json_data['model_input_file_directory']
 
+    def getModelInstance(self):
+        """
+        :rtype: mupif.Model.Model
+        """
+        return self.model
+
     def constructFromModelMetaData(self):
-        model = self.model
-        if model.hasMetadata('name') and model.hasMetadata('inputs') and model.hasMetadata('outputs'):
-            self.name = self.model = model.getMetadata('name')
-            for slot in model.getMetadata('inputs'):
+        model = self.model  # type: mupif.Model.Model
+        self.name = self.getModelInstance().__class__.__name__
+        if self.getModelInstance().hasMetadata('Input_types'):
+            for slot in self.getModelInstance().getMetadata('Input_types'):
                 obj_id = 0
-                if 'obj_id' in slot:
-                    obj_id = slot['obj_id']
+                if 'Object_ID' in slot:
+                    obj_id = slot['Object_ID']
                 self.addDataSlot(
                     DataSlot.InputDataSlot(
-                        slot['name'], DataSlot.DataSlotType.getTypeFromName(slot['type']), slot['optional'],
-                        slot['obj_type'], obj_id))
-            for slot in model.getMetadata('outputs'):
+                        slot['Name'], DataSlot.DataSlotType.getTypeFromName(slot['Type']), slot['required'],
+                        slot['Type_ID'], obj_id))
+        if self.getModelInstance().hasMetadata('Output_types'):
+            for slot in self.getModelInstance().getMetadata('Output_types'):
                 obj_id = 0
-                if 'obj_id' in slot:
-                    obj_id = slot['obj_id']
+                if 'Object_ID' in slot:
+                    obj_id = slot['Object_ID']
                 self.addDataSlot(
                     DataSlot.OutputDataSlot(
-                        slot['name'], DataSlot.DataSlotType.getTypeFromName(slot['type']), slot['optional'],
-                        slot['obj_type'], obj_id))
+                        slot['Name'], DataSlot.DataSlotType.getTypeFromName(slot['Type']), slot['required'],
+                        slot['Type_ID'], obj_id))
 
     @staticmethod
     def loadModelsFromGivenFile(full_path):
@@ -128,9 +138,10 @@ class BlockModel (Block.Block):
             if not mod[0] == "_":
                 my_class = getattr(py_mod, mod)
                 if hasattr(my_class, '__name__'):
-                    if my_class.__name__ not in BlockWorkflow.BlockWorkflow.getListOfModelClassnames() and inspect.isclass(my_class):
-                        if issubclass(my_class, mupif.Application.Application) or issubclass(my_class,
-                                                                                            mupif.Workflow.Workflow):
+                    if my_class.__name__ not in BlockWorkflow.BlockWorkflow.getListOfModelClassnames() \
+                            and inspect.isclass(my_class):
+                        if issubclass(my_class, mupif.Application.Application) or issubclass(
+                                my_class, mupif.Workflow.Workflow):
                             BlockWorkflow.BlockWorkflow.list_of_models.append(my_class)
                             BlockWorkflow.BlockWorkflow.list_of_model_dependencies.append("from %s import %s" % (
                                 py_mod.__name__, my_class.__name__))
