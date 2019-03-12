@@ -129,6 +129,15 @@ class Block:
         """
         return "ToBeImplemented"
 
+    def getOutputDataSlotGetFunctionOfLinkedDataSlot(self, slot, time=''):
+        """
+        :param DataSlot.DataSlot slot:
+        :param str time:
+        :return: str
+        """
+        connected_slot = self.getDataSlotWithName(slot.getName()).getLinkedDataSlot()
+        return connected_slot.getParentBlock().generateOutputDataSlotGetFunction(connected_slot, time)
+
     def getDataSlotWithName(self, name):
         """Return matching data slot by its name, None otherwise.
         :rtype: DataSlot.DataSlot or None

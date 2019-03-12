@@ -8,7 +8,7 @@ class BlockIfElse (Block.Block):
 
     def __init__(self):
         Block.Block.__init__(self)
-        self.addDataSlot(DataSlot.InputDataSlot("condition", DataSlot.DataSlotType.Bool, False))
+        self.addDataSlot(DataSlot.InputDataSlot("condition", DataSlot.DataSlotType.Bool, True))
         self.block_if = None
         self.block_else = None
 
@@ -31,7 +31,7 @@ class BlockIfElse (Block.Block):
 
     def getCondition(self):
         """:rtype: str"""
-        return "True"  # temporary until a condition block exists
+        return self.getOutputDataSlotGetFunctionOfLinkedDataSlot(self.getDataSlotWithName("condition"))
 
     def getBlocks(self, cls=None):
         blocks = []

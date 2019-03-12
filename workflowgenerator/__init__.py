@@ -6,6 +6,7 @@ from . import BlockModel
 from . import BlockConstProperty
 from . import BlockConstPhysicalQuantity
 from . import BlockIfElse
+from . import BlockBoolCompareValue
 from . import DataLink
 from . import DataSlot
 from . import VisualMenu
@@ -15,6 +16,6 @@ from . import tools
 
 
 __all__ = ['Block', 'BlockSequentional', 'BlockTimeloop', 'BlockWorkflow', 'BlockModel',
-           'BlockConstProperty', 'BlockConstPhysicalQuantity', 'BlockIfElse',
+           'BlockConstProperty', 'BlockConstPhysicalQuantity', 'BlockIfElse', 'BlockBoolCompareValue',
            'DataLink', 'DataSlot', 'VisualMenu',
            'tools', 'exceptions', 'helpers']
