@@ -8,14 +8,14 @@ class BlockIfElse (Block.Block):
 
     def __init__(self):
         Block.Block.__init__(self)
-        self.addDataSlot(DataSlot.InputDataSlot("condition", DataSlot.DataSlotType.Bool, True))
+        self.addDataSlot(DataSlot.InputDataSlot("condition", DataSlot.DataSlotType.DT_Bool, True))
         self.block_if = None
         self.block_else = None
 
     def getInitCode(self, indent=0):
         return []
 
-    def getInitializationCode(self, indent=0):
+    def getInitializationCode(self, indent=0, metaDataStr="{}"):
         return []
 
     def getExecutionCode(self, indent=0, time='', timestep='tstep'):

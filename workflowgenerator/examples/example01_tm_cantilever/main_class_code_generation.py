@@ -9,9 +9,9 @@ if __name__ == '__main__':
 
     workflow = workflowgenerator.BlockWorkflow.BlockWorkflow()
 
-    workflow.addDataSlot(workflowgenerator.DataSlot.ExternalInputDataSlot('temperature', workflowgenerator.DataSlot.DataSlotType.Field))
-    workflow.addDataSlot(workflowgenerator.DataSlot.ExternalInputDataSlot('displacement', workflowgenerator.DataSlot.DataSlotType.Field))
-    workflow.addDataSlot(workflowgenerator.DataSlot.ExternalOutputDataSlot('top_temperature', workflowgenerator.DataSlot.DataSlotType.Property))
+    workflow.addDataSlot(workflowgenerator.DataSlot.ExternalInputDataSlot('temperature', 'mupif.Field'))
+    workflow.addDataSlot(workflowgenerator.DataSlot.ExternalInputDataSlot('displacement', 'mupif.Field'))
+    workflow.addDataSlot(workflowgenerator.DataSlot.ExternalOutputDataSlot('top_temperature', 'mupif.Property'))
 
     property1 = workflowgenerator.BlockConstProperty.BlockConstProperty()
     property1.setValue((0.,))

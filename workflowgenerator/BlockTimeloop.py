@@ -1,19 +1,20 @@
+import mupif
 from . import tools
 from . import Block
 from . import DataSlot
 from . import BlockModel
-from . import BlockSequentional
+from . import BlockDefiningTimestep
 
 
-class BlockTimeloop (BlockSequentional.BlockSequentional):
+class BlockTimeloop (BlockDefiningTimestep.BlockDefiningTimestep):
     """
-    Implementation of sequential processing block
+    Implementation of while timeloop block
     """
     def __init__(self):
-        BlockSequentional.BlockSequentional.__init__(self)
-        self.addDataSlot(DataSlot.InputDataSlot("start_time", DataSlot.DataSlotType.PhysicalQuantity, False))
-        self.addDataSlot(DataSlot.InputDataSlot("target_time", DataSlot.DataSlotType.PhysicalQuantity, False))
-        self.addDataSlot(DataSlot.InputDataSlot("max_dt", DataSlot.DataSlotType.PhysicalQuantity, True))
+        BlockDefiningTimestep.BlockDefiningTimestep.__init__(self)
+        self.addDataSlot(DataSlot.InputDataSlot("start_time", 'mupif.PhysicalQuantity', False))
+        self.addDataSlot(DataSlot.InputDataSlot("target_time", 'mupif.PhysicalQuantity', False))
+        self.addDataSlot(DataSlot.InputDataSlot("max_dt", 'mupif.PhysicalQuantity', True))
 
     def getStartTime(self):
         connected_slot = self.getDataSlotWithName("start_time").getLinkedDataSlot()
@@ -45,8 +46,6 @@ class BlockTimeloop (BlockSequentional.BlockSequentional):
         var_time_step = "%s_time_step" % self.code_name
         var_time_step_number = "%s_time_step_number" % self.code_name
 
-        code.append("time_units = mupif.Physics.PhysicalQuantities.PhysicalUnit('s', 1., [0, 0, 1, 0, 0, 0, 0, 0, 0])")
-
         code.append("%s = %s" % (var_time, self.getStartTime()))
         code.append("%s = %s" % (var_target_time, self.getTargetTime()))
 
@@ -77,7 +76,7 @@ class BlockTimeloop (BlockSequentional.BlockSequentional):
         while_code.append("\t%s = min(%s+%s, %s)" % (var_time, var_time, var_dt, var_target_time))
         while_code.append("")
 
-        while_code.append("\tif %s.inUnitsOf(time_units).getValue() + 1.e-6 > %s.inUnitsOf(time_units).getValue():" % (
+        while_code.append("\tif %s.inUnitsOf('s').getValue() + 1.e-6 > %s.inUnitsOf('s').getValue():" % (
             var_time, var_target_time))
         while_code.append("\t\t%s = False" % var_compute)
 

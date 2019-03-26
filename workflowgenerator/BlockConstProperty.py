@@ -11,7 +11,7 @@ class BlockConstProperty (Block.Block):
     """
     def __init__(self):
         Block.Block.__init__(self)
-        self.addDataSlot(DataSlot.OutputDataSlot("value", DataSlot.DataSlotType.Property, False))
+        self.addDataSlot(DataSlot.OutputDataSlot("value", 'mupif.Property', False))
         self.value = ()
         self.propID = None
         self.valueType = None

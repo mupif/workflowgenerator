@@ -1,3 +1,4 @@
+import mupif
 from . import tools
 from . import Block
 from . import DataSlot
@@ -8,15 +9,15 @@ class BlockBoolCompareValue (Block.Block):
 
     def __init__(self):
         Block.Block.__init__(self)
-        self.addDataSlot(DataSlot.InputDataSlot("A", DataSlot.DataSlotType.PhysicalQuantity, False))
-        self.addDataSlot(DataSlot.InputDataSlot("B", DataSlot.DataSlotType.PhysicalQuantity, False))
-        self.addDataSlot(DataSlot.OutputDataSlot("result", DataSlot.DataSlotType.Bool, False))
+        self.addDataSlot(DataSlot.InputDataSlot("A", 'mupif.PhysicalQuantity', False))
+        self.addDataSlot(DataSlot.InputDataSlot("B", 'mupif.PhysicalQuantity', False))
+        self.addDataSlot(DataSlot.OutputDataSlot("result", DataSlot.DataSlotType.DT_Bool, False))
         self.compare_operator = ">"
 
     def getInitCode(self, indent=0):
         return []
 
-    def getInitializationCode(self, indent=0):
+    def getInitializationCode(self, indent=0, metaDataStr="{}"):
         return []
 
     def getExecutionCode(self, indent=0, time='', timestep='tstep'):

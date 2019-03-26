@@ -13,7 +13,7 @@ class BlockSequentional (Block.Block):
     def getInitCode(self, indent=0):
         return []
 
-    def getInitializationCode(self, indent=0):
+    def getInitializationCode(self, indent=0, metaDataStr="{}"):
         return []
 
     def getExecutionCode(self, indent=0, time='', timestep='tstep'):

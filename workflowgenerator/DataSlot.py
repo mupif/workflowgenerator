@@ -9,32 +9,26 @@ from termcolor import colored
 
 
 class DataSlotType(Enum):
-    Unknown = 0
+    DT_Unknown = 0
 
-    Property = 1
-    Field = 2
-    Function = 3
+    DT_Int = 11
+    DT_Double = 12
+    DT_String = 13
+    DT_Bool = 14
 
-    PhysicalQuantity = 5
-
-    Int = 11
-    Double = 12
-    String = 13
-    Bool = 14
-
-    @staticmethod
-    def getTypeFromName(val):
-        for t in DataSlotType:
-            if t.name == val:
-                return t
-        return None
-
-    @staticmethod
-    def getNameFromType(val):
-        for t in DataSlotType:
-            if t == val:
-                return t.name
-        return None
+    # @staticmethod
+    # def getTypeFromName(val):
+    #     for t in DataSlotType:
+    #         if t.name == val:
+    #             return t
+    #     return None
+    #
+    # @staticmethod
+    # def getNameFromType(val):
+    #     for t in DataSlotType:
+    #         if t == val:
+    #             return t.name
+    #     return None
 
 
 class DataSlot:
@@ -200,8 +194,8 @@ class DataSlot:
         :rtype: dict
         """
         answer = {'classname': self.__class__.__name__, 'uuid': self.uid, 'parent_uuid': self.getParentUUID()}
-        answer.update({'name': self.name, 'type': "%s" % DataSlotType.getNameFromType(self.type)})
-        answer.update({'obj_id': self.obj_id, 'obj_type': "%s" % self.obj_type})
+        answer.update({'name': self.name, 'type': "%s" % self.type})
+        answer.update({'obj_id': self.obj_id, 'obj_type': "'%s'" % self.getObjType()})
         return answer
 
     def getLinkedDataSlot(self):

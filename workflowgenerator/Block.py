@@ -98,10 +98,11 @@ class Block:
         code = ["", "# __init__ code of %s (%s)" % (self.code_name, self.name)]
         return tools.push_indents_before_each_line(code, indent)
 
-    def getInitializationCode(self, indent=0):
+    def getInitializationCode(self, indent=0, metaDataStr="{}"):
         """
         Returns list of strings with initialization code lines.
         :param int indent:
+        :param str metaDataStr:
         :return: Lines of code.
         :rtype: str[]
         """

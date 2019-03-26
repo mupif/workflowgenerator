@@ -1,5 +1,6 @@
 from . import Block
 from . import BlockSequentional
+from . import BlockDefiningTimestep
 from . import BlockTimeloop
 from . import BlockWorkflow
 from . import BlockModel
@@ -15,7 +16,7 @@ from . import helpers
 from . import tools
 
 
-__all__ = ['Block', 'BlockSequentional', 'BlockTimeloop', 'BlockWorkflow', 'BlockModel',
+__all__ = ['Block', 'BlockSequentional', 'BlockTimeloop', 'BlockWorkflow', 'BlockModel', 'BlockDefiningTimestep',
            'BlockConstProperty', 'BlockConstPhysicalQuantity', 'BlockIfElse', 'BlockBoolCompareValue',
            'DataLink', 'DataSlot', 'VisualMenu',
            'tools', 'exceptions', 'helpers']

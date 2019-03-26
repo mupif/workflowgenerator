@@ -57,18 +57,19 @@ class BlockModel (Block.Block):
         code.append("self.%s = %s.%s()" % (self.code_name, self.model_module, self.name))
         return tools.push_indents_before_each_line(code, indent)
 
-    def getInitializationCode(self, indent=0):
+    def getInitializationCode(self, indent=0, metaDataStr="{}"):
         """
         Generates the initialization code of this block.
         :param int indent: number of indents to be added before each line
+        :param str metaDataStr:
         :return: list of code lines
         :rtype: str[]
         """
         code = Block.Block.getInitializationCode(self)
         input_file_add = ""
         if self.input_file_name != "":
-            input_file_add = "file='%s', workdir='%s'" % (self.input_file_name, self.input_file_directory)
-        code.append("self.%s.initialize(%s)" % (self.code_name, input_file_add))
+            input_file_add = "file='%s', workdir='%s', " % (self.input_file_name, self.input_file_directory)
+        code.append("self.%s.initialize(%smetaData=%s)" % (self.code_name, input_file_add, metaDataStr))
         return tools.push_indents_before_each_line(code, indent)
 
     def getExecutionCode(self, indent=0, time='', timestep='tstep'):
@@ -109,24 +110,20 @@ class BlockModel (Block.Block):
     def constructFromModelMetaData(self):
         model = self.model  # type: mupif.Model.Model
         self.name = self.getModelInstance().__class__.__name__
-        if self.getModelInstance().hasMetadata('Input_types'):
-            for slot in self.getModelInstance().getMetadata('Input_types'):
+        if self.getModelInstance().hasMetadata('Inputs'):
+            for slot in self.getModelInstance().getMetadata('Inputs'):
                 obj_id = 0
                 if 'Object_ID' in slot:
                     obj_id = slot['Object_ID']
                 self.addDataSlot(
-                    DataSlot.InputDataSlot(
-                        slot['Name'], DataSlot.DataSlotType.getTypeFromName(slot['Type']), slot['required'],
-                        slot['Type_ID'], obj_id))
-        if self.getModelInstance().hasMetadata('Output_types'):
-            for slot in self.getModelInstance().getMetadata('Output_types'):
+                    DataSlot.InputDataSlot(slot['Name'], slot['Type'], slot['required'], slot['Type_ID'], obj_id))
+        if self.getModelInstance().hasMetadata('Outputs'):
+            for slot in self.getModelInstance().getMetadata('Outputs'):
                 obj_id = 0
                 if 'Object_ID' in slot:
                     obj_id = slot['Object_ID']
                 self.addDataSlot(
-                    DataSlot.OutputDataSlot(
-                        slot['Name'], DataSlot.DataSlotType.getTypeFromName(slot['Type']), slot['required'],
-                        slot['Type_ID'], obj_id))
+                    DataSlot.OutputDataSlot(slot['Name'], slot['Type'], slot['required'], slot['Type_ID'], obj_id))
 
     @staticmethod
     def loadModelsFromGivenFile(full_path):
@@ -174,7 +171,7 @@ class BlockModel (Block.Block):
                 obj_id = "'%s'" % slot.obj_id
             else:
                 obj_id = str(slot.obj_id)
-            return "self.%s.get(%s, %s, %s)" % (self.code_name, slot.obj_type, time, obj_id)
+            return "self.%s.get(%s, %s, %s)" % (self.code_name, slot.getObjType(), time, obj_id)
         return "None"
 
     # ------------------------------------------------------------------------------------------

@@ -11,7 +11,7 @@ class BlockConstPhysicalQuantity (Block.Block):
     """
     def __init__(self):
         Block.Block.__init__(self)
-        self.addDataSlot(DataSlot.OutputDataSlot("value", DataSlot.DataSlotType.PhysicalQuantity, False))
+        self.addDataSlot(DataSlot.OutputDataSlot("value", 'mupif.PhysicalQuantity', False))
         self.value = 0.
         self.units = None
 

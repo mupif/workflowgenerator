@@ -139,70 +139,52 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         code.append("\tdef __init__(self):")
 
         code.append("\t\tmetaData = {")
-        # code.append("\t\t\t'Name': '%s'," % workflow_classname)
-        # code.append("\t\t\t'ID': 'Thermo-mechanical-1',")
-        # code.append("\t\t\t'Description': '',")
-        # code.append("\t\t\t'Model_refs_ID': ['NonStatThermo-1', 'Mechanical-1'],")
-        # code.append("\t\t\t'Boundary_conditions': '',")
-        code.append("\t\t\t'Input_types': [")
+        code.append("\t\t\t'Inputs': [")
 
         code.append("\t\t\t],")
-        code.append("\t\t\t'Output_types': [")
+        code.append("\t\t\t'Outputs': [")
 
         code.append("\t\t\t],")
-        # code.append("\t\t\t'Solver': {")
-        # code.append("\t\t\t\t'Accuracy': '',")
-        # code.append("\t\t\t\t'Sensitivity': '',")
-        # code.append("\t\t\t\t'Complexity': '',")
-        # code.append("\t\t\t\t'Robustness': '',")
-        # code.append("\t\t\t\t'Estim_time_step': 1,")
-        # code.append("\t\t\t\t'Estim_comp_time': 1.e-3,")
-        # code.append("\t\t\t\t'Estim_execution_cost': 0.01,")
-        # code.append("\t\t\t\t'Estim_personnel_cost': 0.01,")
-        # code.append("\t\t\t\t'Required_expertise': 'None',")
-        # code.append("\t\t\t\t'Language': 'Python',")
-        # code.append("\t\t\t\t'License': 'LGPL',")
-        # code.append("\t\t\t\t'Creator': '',")
-        # code.append("\t\t\t\t'Version_date': '',")
-        # code.append("\t\t\t\t'Documentation': '',")
-        # code.append("\t\t\t}")
         code.append("\t\t}")
 
         code.append("\t\tmupif.Workflow.Workflow.__init__(self, metaData=metaData)")
 
         # metadata
+        code.append("\t\tself.setMetadata('Name', '%s')" % workflow_classname)
+        code.append("\t\tself.setMetadata('ID', '%s')" % workflow_classname)
+        code.append("\t\tself.setMetadata('Description', '%s')" % "")
+        code.append("\t\tself.setMetadata('Model_refs_ID', [])")
 
         if class_code:
-            code.append("\t\tself.metadata.update({'Name': '%s'})" % workflow_classname)
 
             code_add = ""
             for s in self.getAllExternalDataSlots("out"):
                 if s.connected():
                     num_of_external_input_dataslots += 1
                     params = "'Name': '%s', 'Type': '%s', 'required': %s, 'description': '%s', 'Type_ID': '%s', " \
-                             "'Object_ID': '%s', 'ID': 0, 'Units': ''" % (
-                                s.name, DataSlot.DataSlotType.getNameFromType(s.type), True, "",
-                                s.getLinkedDataSlot().obj_type, s.obj_id)
+                             "'Object_ID': '%s', 'ID': 0, 'Units': '', 'Required': True" % (
+                                s.name, s.type, True, "",
+                                s.getLinkedDataSlot().getObjType(), s.obj_id)
 
                     if code_add != "":
                         code_add = "%s, " % code_add
                     code_add = "%s{%s}" % (code_add, params)
 
-            code.append("\t\tself.metadata.update({'Input_types': [%s]})" % code_add)
+            code.append("\t\tself.updateMetadata({'Inputs': [%s]})" % code_add)
 
             code_add = ""
             for s in self.getAllExternalDataSlots("in"):
                 if s.connected():
                     params = "'Name': '%s', 'Type': '%s', 'required': %s, 'description': '%s', 'Type_ID': '%s', " \
-                             "'Object_ID': '%s', 'ID': 0, 'Units': ''" % (
-                                s.name, DataSlot.DataSlotType.getNameFromType(s.type), False, "",
-                                s.getLinkedDataSlot().obj_type, s.obj_id)
+                             "'Object_ID': '%s', 'ID': 0, 'Units': '', 'Required': False" % (
+                                s.name, s.type, False, "",
+                                s.getLinkedDataSlot().getObjType(), s.obj_id)
 
                     if code_add != "":
                         code_add = "%s, " % code_add
                     code_add = "%s{%s}" % (code_add, params)
 
-            code.append("\t\tself.metadata.update({'Output_types': [%s]})" % code_add)
+            code.append("\t\tself.updateMetadata({'Outputs': [%s]})" % code_add)
 
             # initialization of workflow inputs
             for s in self.getAllExternalDataSlots("out"):
@@ -220,19 +202,24 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         # initialize function
 
         code.append("\t")
-        code.append(
-            "\tdef initialize(self, file='', workdir='', executionID=None, metaData={}, validateMetaData=False, "
-            "**kwargs):"
-        )
+        code.append("\tdef initialize(self, file='', workdir='', metaData={}, validateMetaData=True, **kwargs):")
+        # code.append("\t\tself.updateMetadata(metaData)")
 
         code.append("\t\t")
 
-        code.append(
-            "\t\tmupif.Workflow.Workflow.initialize(self, file, workdir, executionID, metaData, validateMetaData, "
-            "**kwargs)"
-        )
+        code.append("\t\tmupif.Workflow.Workflow.initialize(self, file, workdir, metaData, validateMetaData, **kwargs)")
+
+        code.append("\t\t")
+        code.append("\t\texecMD = {")
+        code.append("\t\t\t'Execution': {")
+        code.append("\t\t\t\t'ID': self.getMetadata('Execution.ID'),")
+        code.append("\t\t\t\t'Use_case_ID': self.getMetadata('Execution.Use_case_ID'),")
+        code.append("\t\t\t\t'Task_ID': self.getMetadata('Execution.Task_ID')")
+        code.append("\t\t\t}")
+        code.append("\t\t}")
+
         for model in all_model_blocks:
-            code.extend(model.getInitializationCode(2))
+            code.extend(model.getInitializationCode(2, "execMD"))
 
         # get critical time step
 
@@ -263,7 +250,7 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
             code.append("\t\t\tpass")
             for s in self.getAllExternalDataSlots("out"):
                 if s.connected():
-                    if s.type == DataSlot.DataSlotType.Property:
+                    if s.type == 'mupif.Property':
                         code.append("\t\t\tif objectID == '%s':" % s.name)
                         code.append("\t\t\t\tself.%s = obj" % s.code_name)
 
@@ -273,17 +260,7 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
             code.append("\t\t\tpass")
             for s in self.getAllExternalDataSlots("out"):
                 if s.connected():
-                    if s.type == DataSlot.DataSlotType.Field:
-                        code.append("\t\t\tif objectID == '%s':" % s.name)
-                        code.append("\t\t\t\tself.%s = obj" % s.code_name)
-
-            code.append("\t\t\t")
-            code.append("\t\t# in case of Function")
-            code.append("\t\tif isinstance(obj, mupif.Function.Function):")
-            code.append("\t\t\tpass")
-            for s in self.getAllExternalDataSlots("out"):
-                if s.connected():
-                    if s.type == DataSlot.DataSlotType.Function:
+                    if s.type == 'mupif.Field':
                         code.append("\t\t\tif objectID == '%s':" % s.name)
                         code.append("\t\t\t\tself.%s = obj" % s.code_name)
 
@@ -300,7 +277,7 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
             code.append("\t\t\tpass")
             for s in self.getAllExternalDataSlots("in"):
                 if s.connected():
-                    if s.type == DataSlot.DataSlotType.Property:
+                    if s.type == 'mupif.Property':
                         code.append("\t\t\tif objectID == '%s':" % s.name)
                         code.append("\t\t\t\treturn self.%s" %
                                     s.getLinkedDataSlot().getParentBlock().generateOutputDataSlotGetFunction(
@@ -312,23 +289,12 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
             code.append("\t\t\tpass")
             for s in self.getAllExternalDataSlots("in"):
                 if s.connected():
-                    if s.type == DataSlot.DataSlotType.Field:
+                    if s.type == 'mupif.Field':
                         code.append("\t\t\tif objectID == '%s':" % s.name)
                         code.append("\t\t\t\treturn %s" %
                                     s.getLinkedDataSlot().getParentBlock().generateOutputDataSlotGetFunction(
                                         s.getLinkedDataSlot(), 'time'))
 
-            code.append("\t\t\t")
-            code.append("\t\t# in case of Function")
-            code.append("\t\tif isinstance(objectType, mupif.FunctionID):")
-            code.append("\t\t\tpass")
-            for s in self.getAllExternalDataSlots("in"):
-                if s.connected():
-                    if s.type == DataSlot.DataSlotType.Function:
-                        code.append("\t\t\tif objectID == '%s':" % s.name)
-                        code.append("\t\t\t\treturn self.%s" %
-                                    s.getLinkedDataSlot().getParentBlock().generateOutputDataSlotGetFunction(
-                                        s.getLinkedDataSlot(), 'time'))
             code.append("\t\t")
             code.append("\t\treturn None")
 
@@ -351,7 +317,6 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
             code.extend(model.getExecutionCode(2, "tstep.getTime()"))
 
         if not class_code:
-            code.append("")
             code.append("\t\t# terminate all models")
             code.append("\t\tself.terminate()")
             code.append("")
@@ -363,7 +328,15 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         if not class_code or num_of_external_input_dataslots == 0:
             code.append("if __name__ == '__main__':")
             code.append("\tproblem = %s()" % workflow_classname)
-            code.append("\tproblem.initialize()")
+            code.append("\t")
+            code.append("\tmd = {")
+            code.append("\t\t'Execution': {")
+            code.append("\t\t\t'ID': 'N/A',")
+            code.append("\t\t\t'Use_case_ID': 'N/A',")
+            code.append("\t\t\t'Task_ID': 'N/A'")
+            code.append("\t\t}")
+            code.append("\t}")
+            code.append("\tproblem.initialize(metaData=md)")
             code.append("\tproblem.solve()")
             code.append("\tproblem.terminate()")
             code.append("\t")
