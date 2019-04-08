@@ -202,12 +202,12 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         # initialize function
 
         code.append("\t")
-        code.append("\tdef initialize(self, file='', workdir='', metaData={}, validateMetaData=True, **kwargs):")
+        code.append("\tdef initialize(self, file='', workdir='', targetTime=mupif.Physics.PhysicalQuantities.PhysicalQuantity(0., 's'), metaData={}, validateMetaData=True, **kwargs):")
         # code.append("\t\tself.updateMetadata(metaData)")
 
         code.append("\t\t")
 
-        code.append("\t\tmupif.Workflow.Workflow.initialize(self, file, workdir, metaData, validateMetaData, **kwargs)")
+        code.append("\t\tmupif.Workflow.Workflow.initialize(self, file=file, workdir=workdir, targetTime=targetTime, metaData=metaData, validateMetaData=validateMetaData, **kwargs)")
 
         code.append("\t\t")
         code.append("\t\texecMD = {")

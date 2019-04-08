@@ -24,7 +24,7 @@ class BlockModel (Block.Block):
         self.model_module = model.__module__
         self.name = model.__class__.__name__
         self.input_file_name = ""
-        self.input_file_directory = "."
+        self.input_file_directory = ""
 
     def setInputFile(self, val):
         """

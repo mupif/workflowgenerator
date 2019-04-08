@@ -15,15 +15,15 @@ if __name__ == '__main__':
 
     property1 = workflowgenerator.BlockConstProperty.BlockConstProperty()
     property1.setValue((0.,))
-    property1.setPropertyID(mupif.PropertyID.PID_Temperature)
-    property1.setValueType(mupif.ValueType.Scalar)
+    property1.setPropertyID('mupif.PropertyID.PID_Temperature')
+    property1.setValueType('mupif.ValueType.Scalar')
     property1.setUnits('degC')
     workflow.addBlock(property1)
 
     property2 = workflowgenerator.BlockConstProperty.BlockConstProperty()
     property2.setValue((0.,))
-    property2.setPropertyID(mupif.PropertyID.PID_Temperature)
-    property2.setValueType(mupif.ValueType.Scalar)
+    property2.setPropertyID('mupif.PropertyID.PID_Temperature')
+    property2.setValueType('mupif.ValueType.Scalar')
     property2.setUnits('degC')
     workflow.addBlock(property2)
 

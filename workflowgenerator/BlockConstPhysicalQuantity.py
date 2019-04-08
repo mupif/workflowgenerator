@@ -82,14 +82,7 @@ class BlockConstPhysicalQuantity (Block.Block):
         :param value:
         """
         if keyword == 'set_units' and isinstance(value, str):
-            items = []
-            items.extend(list(map(str, mupif.Physics.PhysicalQuantities._unit_table)))
-            items_real = []
-            items_real.extend(list(mupif.Physics.PhysicalQuantities._unit_table))
-            if value is not None:
-                if value in items:
-                    selected_id = items.index(value)
-                    self.setUnits(items_real[selected_id])
+            self.setUnits(value)
         elif keyword == 'set_value' and isinstance(value, float):
             self.setValue(value)
         else:
