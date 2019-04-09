@@ -6,6 +6,11 @@ from . import DataSlot
 from . import DataLink
 from . import BlockModel
 from . import VisualMenu
+from . import BlockConstPhysicalQuantity
+from . import BlockConstProperty
+from . import BlockTimeloop
+from . import BlockBoolCompareValue
+from . import BlockIfElse
 
 import os
 import inspect
@@ -25,8 +30,12 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
 
     def loadListOfBlockClasses(self):
         BlockWorkflow.list_of_block_classes = []
-        BlockWorkflow.list_of_block_classes.append(BlockWorkflow)
-        BlockWorkflow.list_of_block_classes.append(BlockModel.BlockModel)
+        BlockWorkflow.list_of_block_classes.append(BlockConstPhysicalQuantity.BlockConstPhysicalQuantity)
+        BlockWorkflow.list_of_block_classes.append(BlockConstProperty.BlockConstProperty)
+        BlockWorkflow.list_of_block_classes.append(BlockTimeloop.BlockTimeloop)
+        BlockWorkflow.list_of_block_classes.append(BlockBoolCompareValue.BlockBoolCompareValue)
+        BlockWorkflow.list_of_block_classes.append(BlockIfElse.BlockIfElse)
+        BlockWorkflow.list_of_block_classes.append(BlockSequentional.BlockSequentional)
 
     def getWorkflowBlock(self):
         """
@@ -351,6 +360,11 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         return array
 
     @staticmethod
+    def getListOfBlockClassnames():
+        array = [m.__name__ for m in BlockWorkflow.getListOfBlockClasses()]
+        return array
+
+    @staticmethod
     def loadModelsFromGivenFile(full_path):
         mod_name, file_ext = os.path.splitext(os.path.split(full_path)[-1])
         spec = importlib.util.spec_from_file_location(mod_name, full_path)
@@ -361,7 +375,7 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
                 my_class = getattr(py_mod, mod)
                 if hasattr(my_class, '__name__'):
                     if my_class.__name__ not in BlockWorkflow.getListOfModelClassnames() and inspect.isclass(my_class):
-                        if issubclass(my_class, mupif.Application.Application) or issubclass(my_class,
+                        if issubclass(my_class, mupif.Model.Model) or issubclass(my_class,
                                                                                             mupif.Workflow.Workflow):
                             BlockWorkflow.list_of_models.append(my_class)
                             BlockWorkflow.list_of_model_dependencies.append("from %s import %s" % (
@@ -423,15 +437,18 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
     # ------------------------------------------------------------------------------------------
     # support functions for visualisation
     # ------------------------------------------------------------------------------------------
-    
+
     def modificationQueryForItemWithUID(self, uid, keyword, value=None):
         """
         :param str keyword:
         :param value:
         """
-        elem = self.getBlockWithUID(uid)
-        if elem is not None:
-            elem.modificationQuery(keyword, value)
+        if self.getUID() == uid:
+            self.modificationQuery(keyword, value)
+        else:
+            elem = self.getBlockWithUID(uid)
+            if elem is not None:
+                elem.modificationQuery(keyword, value)
 
     def generateMenu(self):
         self.menu = VisualMenu.VisualMenu()
