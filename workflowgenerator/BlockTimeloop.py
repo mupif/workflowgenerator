@@ -1,4 +1,3 @@
-import mupif
 from . import tools
 from . import Block
 from . import DataSlot

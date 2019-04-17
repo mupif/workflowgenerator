@@ -1,4 +1,3 @@
-import mupif
 from . import DataSlot
 import uuid
 

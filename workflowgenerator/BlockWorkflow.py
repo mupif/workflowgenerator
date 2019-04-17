@@ -13,6 +13,7 @@ from . import BlockBoolCompareValue
 from . import BlockIfElse
 
 import os
+import sys
 import inspect
 import importlib.util
 
@@ -367,6 +368,10 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
     @staticmethod
     def loadModelsFromGivenFile(full_path):
         mod_name, file_ext = os.path.splitext(os.path.split(full_path)[-1])
+        directory = os.path.split(full_path)[0]
+        print(directory)
+        if directory is not '':
+            sys.path.append(directory)
         spec = importlib.util.spec_from_file_location(mod_name, full_path)
         py_mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(py_mod)
@@ -417,6 +422,8 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         :param str uid:
         :rtype: Block.Block
         """
+        if self.getUID() == uid:
+            return self
         for block in self. getBlocksRecursive():
             if block.getUID() == uid:
                 return block
@@ -433,6 +440,85 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         slot_2 = self.getSlotWithUID(uid_2)
         if isinstance(slot_1, DataSlot.DataSlot) and isinstance(slot_2, DataSlot.DataSlot):
             slot_1.connectTo(slot_2)
+
+    def convertToJSON(self):
+        return_json_array = [self.getDictForJSON()]
+        return_json_array.extend([k.getDictForJSON() for k in self.getSlots()])
+        return_json_array.extend([k.getDictForJSON() for k in self.getBlocks()])
+        return_json_array.extend([k.getDictForJSON() for k in self.getDataLinks()])
+        return return_json_array
+
+    def initializeFromJSONData(self, json_data):
+        self.uuid = json_data['uuid']
+
+    def constructFromJSON(self, json_data):
+        self.deleteAllItems()
+        block_classes = self.getListOfBlockClasses()
+        block_classes.append(BlockModel.BlockModel)
+        for item in json_data:
+            try:
+                if item['classname'] == 'BlockWorkflow':
+                    self.initializeFromJSONData(item)
+                    print("setting BlockWorkflow")
+
+                elif item['classname'] == 'DataLink':
+                    s1 = self.getSlotWithUID(item['ds1_uid'])
+                    s2 = self.getSlotWithUID(item['ds2_uid'])
+                    if isinstance(s1, DataSlot.DataSlot) and isinstance(s2, DataSlot.DataSlot):
+                        new_dl = DataLink.DataLink(s1, s2)
+                        self.addDataLink(new_dl)
+                    else:
+                        print("Some slots were not found.")
+
+                elif item['classname'] == 'ExternalInputDataSlot':
+                    new_ds = DataSlot.ExternalInputDataSlot(
+                        item['name'],
+                        item['type'],
+                        True,
+                        item['obj_type'],
+                        item['obj_id']
+                    )
+                    new_ds.setUUID(item['uuid'])
+                    self.addDataSlot(new_ds)
+
+                elif item['classname'] == 'ExternalOutputDataSlot':
+                    new_ds = DataSlot.ExternalOutputDataSlot(
+                        item['name'],
+                        item['type'],
+                        False,
+                        item['obj_type'],
+                        item['obj_id']
+                    )
+                    new_ds.setUUID(item['uuid'])
+                    self.addDataSlot(new_ds)
+
+                else:
+                    for block_class in block_classes:
+
+                        if item['classname'] == block_class.__name__:
+                            print("setting %s" % block_class.__name__)
+                            new_block = None
+                            if block_class.__name__ == 'BlockModel':
+                                if item['model_classname'] in self.getListOfModelClassnames():
+                                    model_index = self.getListOfModelClassnames().index(item['model_classname'])
+                                    new_block = block_class(self.getListOfModels()[model_index]())
+                                    new_block.constructFromModelMetaData()
+                                else:
+                                    print("Model is not in list of known models.")
+                            else:
+                                new_block = block_class()
+                            parent_block = self.getBlockWithUID(item['parent_uuid'])
+                            if parent_block is not None:
+                                parent_block.addBlock(new_block)
+                                new_block.setParentBlock(parent_block)
+                                new_block.initializeFromJSONData(item)
+
+                            else:
+                                print("Parent block was not found.")
+                            break
+
+            except KeyError:
+                print("Something could not have been loaded.")
 
     # ------------------------------------------------------------------------------------------
     # support functions for visualisation

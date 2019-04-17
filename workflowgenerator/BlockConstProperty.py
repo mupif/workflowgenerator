@@ -57,7 +57,14 @@ class BlockConstProperty (Block.Block):
                 "self.%s = mupif.Property.ConstantProperty("
                 "%s, %s, %s, mupif.Physics.PhysicalQuantities._unit_table['%s'], "
                 "None, %s)" % (
-                            self.code_name, self.value, self.propID, self.valueType, self.units, self.objectID))
+                    self.code_name,
+                    self.value,
+                    self.propID,
+                    self.valueType,
+                    self.units,
+                    self.objectID
+                )
+            )
             return tools.push_indents_before_each_line(code, indent)
         return []
 

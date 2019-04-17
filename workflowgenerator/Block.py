@@ -191,19 +191,33 @@ class Block:
         """
         :rtype: dict
         """
-        answer = {'classname': self.__class__.__name__, 'uuid': self.uuid, 'parent_uuid': self.getParentUUID()}
+        slot_dict = {}
+        for slot in self.getSlots():
+            slot_dict.update({slot.getName(): slot.getUID()})
+
+        answer = {
+            'classname': self.__class__.__name__,
+            'uuid': self.uuid,
+            'parent_uuid': self.getParentUUID(),
+            'slot_uids': slot_dict
+        }
         return answer
 
-    def convertToJSON(self):
-        return_json_array = [self.getDictForJSON()]
-        return_json_array.extend([k.getDictForJSON() for k in self.getSlots()])
-        return_json_array.extend([k.getDictForJSON() for k in self.getBlocks()])
-        return return_json_array
+    # def convertToJSON(self):
+    #     return_json_array = [self.getDictForJSON()]
+    #     return_json_array.extend([k.getDictForJSON() for k in self.getSlots()])
+    #     return_json_array.extend([k.getDictForJSON() for k in self.getBlocks()])
+    #     return return_json_array
 
     def initializeFromJSONData(self, json_data):
         self.uuid = json_data['uuid']
-        e_parent_e = self.getWorkflowBlock().getNodeById(json_data['parent_uuid'])
-        self.parent_block = e_parent_e
+        if json_data['parent_uuid'] != '':
+            e_parent_e = self.getWorkflowBlock().getBlockWithUID(json_data['parent_uuid'])
+            self.parent_block = e_parent_e
+        for key, value in json_data['slot_uids'].items():
+            for slot in self.getSlots():
+                if slot.getName() == key:
+                    slot.setUUID(value)
 
     def generateNewDataSlotName(self, base="data_slot_"):
         names = [n.name for n in self.getSlots()]

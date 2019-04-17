@@ -108,7 +108,6 @@ class BlockModel (Block.Block):
         return self.model
 
     def constructFromModelMetaData(self):
-        model = self.model  # type: mupif.Model.Model
         self.name = self.getModelInstance().__class__.__name__
         if self.getModelInstance().hasMetadata('Inputs'):
             for slot in self.getModelInstance().getMetadata('Inputs'):
