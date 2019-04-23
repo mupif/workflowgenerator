@@ -146,9 +146,9 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         # __init__ function
 
         code.append("\t")
-        code.append("\tdef __init__(self):")
+        code.append("\tdef __init__(self, metaData={}):")
 
-        code.append("\t\tmetaData = {")
+        code.append("\t\tMD = {")
         code.append("\t\t\t'Inputs': [")
 
         code.append("\t\t\t],")
@@ -157,13 +157,15 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         code.append("\t\t\t],")
         code.append("\t\t}")
 
-        code.append("\t\tmupif.Workflow.Workflow.__init__(self, metaData=metaData)")
+        code.append("\t\tmupif.Workflow.Workflow.__init__(self, metaData=MD)")
 
         # metadata
         code.append("\t\tself.setMetadata('Name', '%s')" % workflow_classname)
         code.append("\t\tself.setMetadata('ID', '%s')" % workflow_classname)
         code.append("\t\tself.setMetadata('Description', '%s')" % "")
         code.append("\t\tself.setMetadata('Model_refs_ID', [])")
+
+        code.append("\t\tself.updateMetadata(metaData)")
 
         if class_code:
 

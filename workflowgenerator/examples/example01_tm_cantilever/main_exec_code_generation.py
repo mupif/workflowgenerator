@@ -1,6 +1,5 @@
 import field_to_vtk
 import class_code
-import mupif
 import sys
 sys.path.append('../../..')
 import workflowgenerator

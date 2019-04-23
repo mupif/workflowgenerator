@@ -41,9 +41,8 @@ class BlockConstPhysicalQuantity (Block.Block):
         """
         if self.getDataSlotWithName("value").connected():
             code = Block.Block.getInitCode(self)
-            code.append("self.%s = mupif.Physics.PhysicalQuantities.PhysicalQuantity(%s, "
-                        "mupif.Physics.PhysicalQuantities._unit_table['%s'])" % (
-                            self.code_name, self.value, self.units))
+            code.append("self.%s = mupif.Physics.PhysicalQuantities.PhysicalQuantity(%s, '%s')" % (
+                self.code_name, self.value, self.units))
             return tools.push_indents_before_each_line(code, indent)
         return []
 

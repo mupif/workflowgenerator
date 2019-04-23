@@ -55,7 +55,7 @@ class BlockConstProperty (Block.Block):
             code = Block.Block.getInitCode(self)
             code.append(
                 "self.%s = mupif.Property.ConstantProperty("
-                "%s, %s, %s, mupif.Physics.PhysicalQuantities._unit_table['%s'], "
+                "%s, %s, %s, '%s', "
                 "None, %s)" % (
                     self.code_name,
                     self.value,
