@@ -192,9 +192,16 @@ class DataSlot:
         """
         :rtype: dict
         """
-        answer = {'classname': self.__class__.__name__, 'uuid': self.uid, 'parent_uuid': self.getParentUUID()}
-        answer.update({'name': self.name, 'type': "%s" % self.type})
-        answer.update({'obj_id': self.obj_id, 'obj_type': "'%s'" % self.getObjType()})
+        answer = {
+            'classname': self.__class__.__name__,
+            'uuid': self.uid,
+            'parent_uuid': self.getParentUUID(),
+            'name': self.name,
+            'type': "%s" % self.type,
+            'required': self.required,
+            'obj_id': self.obj_id,
+            'obj_type': "'%s'" % self.getObjType()
+        }
         return answer
 
     def getLinkedDataSlot(self):

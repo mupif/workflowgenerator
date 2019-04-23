@@ -444,7 +444,7 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
     def convertToJSON(self):
         return_json_array = [self.getDictForJSON()]
         return_json_array.extend([k.getDictForJSON() for k in self.getSlots()])
-        return_json_array.extend([k.getDictForJSON() for k in self.getBlocks()])
+        return_json_array.extend([k.getDictForJSON() for k in self.getBlocksRecursive()])
         return_json_array.extend([k.getDictForJSON() for k in self.getDataLinks()])
         return return_json_array
 
@@ -498,7 +498,8 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
                         if item['classname'] == block_class.__name__:
                             print("setting %s" % block_class.__name__)
                             new_block = None
-                            if block_class.__name__ == 'BlockModel':
+
+                            if block_class.__name__ == 'BlockModel' and False:
                                 if item['model_classname'] in self.getListOfModelClassnames():
                                     model_index = self.getListOfModelClassnames().index(item['model_classname'])
                                     new_block = block_class(self.getListOfModels()[model_index]())
@@ -507,6 +508,7 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
                                     print("Model is not in list of known models.")
                             else:
                                 new_block = block_class()
+
                             parent_block = self.getBlockWithUID(item['parent_uuid'])
                             if parent_block is not None:
                                 parent_block.addBlock(new_block)

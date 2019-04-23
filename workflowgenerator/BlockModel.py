@@ -14,15 +14,26 @@ class BlockModel (Block.Block):
     """
     Implementation of a block representing model
     """
-    def __init__(self, model):
+    def __init__(self, model=None):
         """
-        :param object model:
+        :param mupif.Model.Model model:
         """
         Block.Block.__init__(self)
 
-        self.model = model
-        self.model_module = model.__module__
-        self.name = model.__class__.__name__
+        self.model_module = 'undefined'
+        self.name = 'undefined'
+        self.model_metadata_inputs = {}
+        self.model_metadata_outputs = {}
+
+        if model is not None:
+            self.model_module = model.__module__
+            self.name = model.__class__.__name__
+            md = model.getAllMetadata()
+            if model.hasMetadata('Inputs'):
+                self.model_metadata_inputs = md['Inputs']
+            if model.hasMetadata('Outputs'):
+                self.model_metadata_outputs = md['Outputs']
+
         self.input_file_name = ""
         self.input_file_directory = ""
 
@@ -39,12 +50,6 @@ class BlockModel (Block.Block):
         :param str val: Input file directory.
         """
         self.input_file_directory = val
-
-    # def getInputSlots(self):
-    #     return self.model.getInputSlots()
-    #
-    # def getOutputSlots(self):
-    #     return self.model.getOutputSlots()
 
     def getInitCode(self, indent=0):
         """
@@ -92,37 +97,49 @@ class BlockModel (Block.Block):
         """
         answer = Block.Block.getDictForJSON(self)
         answer.update({'model_classname': self.name})
+        answer.update({'model_module': self.model_module})
+        answer.update({'model_classname': self.name})
         answer.update({'model_input_file_name': self.input_file_name})
         answer.update({'model_input_file_directory': self.input_file_directory})
+        answer.update({'model_metadata_inputs': self.model_metadata_inputs})
+        answer.update({'model_metadata_outputs': self.model_metadata_outputs})
+        list_slots = []
+        for slot in self.getSlots():
+            list_slots.append(slot.getDictForJSON())
+
+        answer.update({'data_slots': list_slots})
         return answer
 
     def initializeFromJSONData(self, json_data):
-        Block.Block.initializeFromJSONData(self, json_data)
+        self.name = json_data['model_classname']
+        self.model_module = json_data['model_module']
         self.input_file_name = json_data['model_input_file_name']
         self.input_file_directory = json_data['model_input_file_directory']
-
-    def getModelInstance(self):
-        """
-        :rtype: mupif.Model.Model
-        """
-        return self.model
+        self.model_metadata_inputs = json_data['model_metadata_inputs']
+        self.model_metadata_outputs = json_data['model_metadata_outputs']
+        self.constructFromModelMetaData()
+        Block.Block.initializeFromJSONData(self, json_data)
 
     def constructFromModelMetaData(self):
-        self.name = self.getModelInstance().__class__.__name__
-        if self.getModelInstance().hasMetadata('Inputs'):
-            for slot in self.getModelInstance().getMetadata('Inputs'):
+        try:
+            for slot in self.model_metadata_inputs:
                 obj_id = 0
                 if 'Object_ID' in slot:
                     obj_id = slot['Object_ID']
                 self.addDataSlot(
                     DataSlot.InputDataSlot(slot['Name'], slot['Type'], slot['required'], slot['Type_ID'], obj_id))
-        if self.getModelInstance().hasMetadata('Outputs'):
-            for slot in self.getModelInstance().getMetadata('Outputs'):
+        except KeyError:
+            print("Some model inputs could not have been loaded due to KeyError.")
+
+        try:
+            for slot in self.model_metadata_outputs:
                 obj_id = 0
                 if 'Object_ID' in slot:
                     obj_id = slot['Object_ID']
                 self.addDataSlot(
                     DataSlot.OutputDataSlot(slot['Name'], slot['Type'], slot['required'], slot['Type_ID'], obj_id))
+        except KeyError:
+            print("Some model outputs could not have been loaded due to KeyError.")
 
     @staticmethod
     def loadModelsFromGivenFile(full_path):
@@ -152,10 +169,6 @@ class BlockModel (Block.Block):
 
     def getModelDependency(self):
         return "import %s" % self.model_module
-        # model_id = self.getIDOfModelNameInList(self.name)
-        # if model_id > -1:
-        #     return BlockWorkflow.BlockWorkflow.list_of_model_dependencies[model_id]
-        # return "# dependency of %s not found" % self.code_name
 
     def generateOutputDataSlotGetFunction(self, slot, time=''):
         """
