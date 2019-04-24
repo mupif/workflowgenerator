@@ -21,7 +21,6 @@ import importlib.util
 class BlockWorkflow (BlockSequentional.BlockSequentional):
 
     list_of_models = []
-    list_of_model_dependencies = []
     list_of_block_classes = []
 
     def __init__(self):
@@ -214,12 +213,18 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         # initialize function
 
         code.append("\t")
-        code.append("\tdef initialize(self, file='', workdir='', targetTime=mupif.Physics.PhysicalQuantities.PhysicalQuantity(0., 's'), metaData={}, validateMetaData=True, **kwargs):")
-        # code.append("\t\tself.updateMetadata(metaData)")
+        code.append(
+            "\tdef initialize(self, file='', workdir='', "
+            "targetTime=mupif.Physics.PhysicalQuantities.PhysicalQuantity(0., 's'), "
+            "metaData={}, validateMetaData=True, **kwargs):"
+        )
 
         code.append("\t\t")
 
-        code.append("\t\tmupif.Workflow.Workflow.initialize(self, file=file, workdir=workdir, targetTime=targetTime, metaData=metaData, validateMetaData=validateMetaData, **kwargs)")
+        code.append(
+            "\t\tmupif.Workflow.Workflow.initialize(self, file=file, workdir=workdir, targetTime=targetTime, "
+            "metaData=metaData, validateMetaData=validateMetaData, **kwargs)"
+        )
 
         code.append("\t\t")
         code.append("\t\texecMD = {")
@@ -371,7 +376,7 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
     def loadModelsFromGivenFile(full_path):
         mod_name, file_ext = os.path.splitext(os.path.split(full_path)[-1])
         directory = os.path.split(full_path)[0]
-        print(directory)
+        # print(directory)
         if directory is not '':
             sys.path.append(directory)
         spec = importlib.util.spec_from_file_location(mod_name, full_path)
@@ -382,11 +387,33 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
                 my_class = getattr(py_mod, mod)
                 if hasattr(my_class, '__name__'):
                     if my_class.__name__ not in BlockWorkflow.getListOfModelClassnames() and inspect.isclass(my_class):
-                        if issubclass(my_class, mupif.Model.Model) or issubclass(my_class,
-                                                                                            mupif.Workflow.Workflow):
+                        is_sub_model = issubclass(my_class, mupif.Model.Model)
+                        is_sub_workflow = issubclass(my_class, mupif.Workflow.Workflow)
+
+                        if is_sub_model or is_sub_workflow:
                             BlockWorkflow.list_of_models.append(my_class)
-                            BlockWorkflow.list_of_model_dependencies.append("from %s import %s" % (
-                                py_mod.__name__, my_class.__name__))
+
+    @staticmethod
+    def loadCustomStandardBlocksFromGivenFile(full_path):
+        mod_name, file_ext = os.path.splitext(os.path.split(full_path)[-1])
+        directory = os.path.split(full_path)[0]
+        # print(directory)
+        if directory is not '':
+            sys.path.append(directory)
+        spec = importlib.util.spec_from_file_location(mod_name, full_path)
+        py_mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(py_mod)
+        for mod in dir(py_mod):
+            if not mod[0] == "_":
+                my_class = getattr(py_mod, mod)
+                if hasattr(my_class, '__name__'):
+                    if my_class.__name__ not in BlockWorkflow.getListOfModelClassnames() and inspect.isclass(my_class):
+                        is_sub_model = issubclass(my_class, mupif.Model.Model)
+                        is_sub_workflow = issubclass(my_class, mupif.Workflow.Workflow)
+                        is_sub_block = issubclass(my_class, Block.Block)
+
+                        if is_sub_block and not is_sub_model and not is_sub_workflow:
+                            BlockWorkflow.list_of_block_classes.append(my_class)
 
     def getDataLinks(self):
         """
@@ -530,6 +557,7 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
 
     def modificationQueryForItemWithUID(self, uid, keyword, value=None):
         """
+        :param str uid:
         :param str keyword:
         :param value:
         """

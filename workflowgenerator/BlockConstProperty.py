@@ -7,7 +7,7 @@ from . import VisualMenu
 
 class BlockConstProperty (Block.Block):
     """
-    Implementation of sequential processing block
+    Implementation of a block representing constant ConstantProperty
     """
     def __init__(self):
         Block.Block.__init__(self)

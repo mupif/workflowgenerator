@@ -141,24 +141,6 @@ class BlockModel (Block.Block):
         except KeyError:
             print("Some model outputs could not have been loaded due to KeyError.")
 
-    @staticmethod
-    def loadModelsFromGivenFile(full_path):
-        mod_name, file_ext = os.path.splitext(os.path.split(full_path)[-1])
-        spec = importlib.util.spec_from_file_location(mod_name, full_path)
-        py_mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(py_mod)
-        for mod in dir(py_mod):
-            if not mod[0] == "_":
-                my_class = getattr(py_mod, mod)
-                if hasattr(my_class, '__name__'):
-                    if my_class.__name__ not in BlockWorkflow.BlockWorkflow.getListOfModelClassnames() \
-                            and inspect.isclass(my_class):
-                        if issubclass(my_class, mupif.Application.Application) or issubclass(
-                                my_class, mupif.Workflow.Workflow):
-                            BlockWorkflow.BlockWorkflow.list_of_models.append(my_class)
-                            BlockWorkflow.BlockWorkflow.list_of_model_dependencies.append("from %s import %s" % (
-                                py_mod.__name__, my_class.__name__))
-
     def generateCodeName(self, base_name='model_'):
         Block.Block.generateCodeName(self, base_name)
 
