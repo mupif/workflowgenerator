@@ -5,10 +5,6 @@ from . import DataSlot
 from . import BlockWorkflow
 from . import VisualMenu
 
-import os
-import inspect
-import importlib.util
-
 
 class BlockModel (Block.Block):
     """
@@ -123,21 +119,61 @@ class BlockModel (Block.Block):
     def constructFromModelMetaData(self):
         try:
             for slot in self.model_metadata_inputs:
-                obj_id = 0
-                if 'Object_ID' in slot:
-                    obj_id = slot['Object_ID']
-                self.addDataSlot(
-                    DataSlot.InputDataSlot(slot['Name'], slot['Type'], slot['required'], slot['Type_ID'], obj_id))
+                if 'Obj_ID' in slot:
+                    if isinstance(slot['Obj_ID'], (list, tuple)):
+                        for obj_id in slot['Obj_ID']:
+                            obj_id_str = obj_id if isinstance(obj_id, str) else str(obj_id)
+                            self.addDataSlot(
+                                DataSlot.InputDataSlot(
+                                    slot['Name'] + " " + obj_id_str,
+                                    slot['Type'],
+                                    slot['required'],
+                                    slot['Type_ID'],
+                                    obj_id
+                                )
+                            )
+                    else:
+                        print("Some slot was not added. (Slot with name '%s')" % slot['Name'])
+                else:
+                    self.addDataSlot(
+                        DataSlot.InputDataSlot(
+                            slot['Name'],
+                            slot['Type'],
+                            slot['required'],
+                            slot['Type_ID'],
+                            0
+                        )
+                    )
         except KeyError:
             print("Some model inputs could not have been loaded due to KeyError.")
 
         try:
             for slot in self.model_metadata_outputs:
-                obj_id = 0
-                if 'Object_ID' in slot:
-                    obj_id = slot['Object_ID']
-                self.addDataSlot(
-                    DataSlot.OutputDataSlot(slot['Name'], slot['Type'], slot['required'], slot['Type_ID'], obj_id))
+                if 'Obj_ID' in slot:
+                    if isinstance(slot['Obj_ID'], (list, tuple)):
+                        for obj_id in slot['Obj_ID']:
+                            obj_id_str = obj_id if isinstance(obj_id, str) else str(obj_id)
+                            self.addDataSlot(
+                                DataSlot.OutputDataSlot(
+                                    slot['Name'] + " " + obj_id_str,
+                                    slot['Type'],
+                                    slot['required'],
+                                    slot['Type_ID'],
+                                    obj_id
+                                )
+                            )
+                    else:
+                        print("Some slot was not added. (Slot with name '%s')" % slot['Name'])
+                else:
+                    self.addDataSlot(
+                        DataSlot.OutputDataSlot(
+                            slot['Name'],
+                            slot['Type'],
+                            slot['required'],
+                            slot['Type_ID'],
+                            0
+                        )
+                    )
         except KeyError:
             print("Some model outputs could not have been loaded due to KeyError.")
 

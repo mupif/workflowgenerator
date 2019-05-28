@@ -15,10 +15,10 @@ class MyProblemClassWorkflow(mupif.Workflow.Workflow):
         self.setMetadata('Name', 'MyProblemClassWorkflow')
         self.setMetadata('ID', 'MyProblemClassWorkflow')
         self.setMetadata('Description', '')
-        self.setMetadata('Model_refs_ID', [])
+        self.setMetadata('Model_refs_ID', {})
         self.updateMetadata(metaData)
-        self.updateMetadata({'Inputs': [{'Name': 'top_temperature', 'Type': 'mupif.Property', 'required': True, 'description': '', 'Type_ID': 'mupif.PropertyID.PID_Temperature', 'Object_ID': 'top_temperature', 'ID': 0, 'Units': '', 'Required': True}]})
-        self.updateMetadata({'Outputs': [{'Name': 'temperature', 'Type': 'mupif.Field', 'required': False, 'description': '', 'Type_ID': 'mupif.FieldID.FID_Temperature', 'Object_ID': 'temperature', 'ID': 0, 'Units': '', 'Required': False}, {'Name': 'displacement', 'Type': 'mupif.Field', 'required': False, 'description': '', 'Type_ID': 'mupif.FieldID.FID_Displacement', 'Object_ID': 'displacement', 'ID': 0, 'Units': '', 'Required': False}]})
+        self.updateMetadata({'Inputs': [{'Name': 'top_temperature', 'Type': 'mupif.Property', 'required': True, 'description': '', 'Type_ID': 'mupif.PropertyID.PID_Temperature', 'Obj_ID': ['top_temperature'], 'ID': 0, 'Units': '', 'Required': True}]})
+        self.updateMetadata({'Outputs': [{'Name': 'temperature', 'Type': 'mupif.Field', 'required': False, 'description': '', 'Type_ID': 'mupif.FieldID.FID_Temperature', 'Obj_ID': ['temperature'], 'ID': 0, 'Units': '', 'Required': False}, {'Name': 'displacement', 'Type': 'mupif.Field', 'required': False, 'description': '', 'Type_ID': 'mupif.FieldID.FID_Displacement', 'Obj_ID': ['displacement'], 'ID': 0, 'Units': '', 'Required': False}]})
     
         # initialization code of external input
         self.external_input_1 = None
@@ -35,10 +35,13 @@ class MyProblemClassWorkflow(mupif.Workflow.Workflow):
         
         # __init__ code of model_2 (mechanical)
         self.model_2 = models.mechanical()
+
+        self.addModelToListOfModels(self.model_1)
+        self.addModelToListOfModels(self.model_2)
     
     def initialize(self, file='', workdir='', targetTime=mupif.Physics.PhysicalQuantities.PhysicalQuantity(0., 's'), metaData={}, validateMetaData=True, **kwargs):
         
-        mupif.Workflow.Workflow.initialize(self, file=file, workdir=workdir, targetTime=targetTime, metaData=metaData, validateMetaData=validateMetaData, **kwargs)
+        self.updateMetadata(dictionary=metaData)
         
         execMD = {
             'Execution': {
@@ -53,6 +56,8 @@ class MyProblemClassWorkflow(mupif.Workflow.Workflow):
         
         # initialization code of model_2 (mechanical)
         self.model_2.initialize(file='inputM13.in', workdir='', metaData=execMD)
+        
+        mupif.Workflow.Workflow.initialize(self, file=file, workdir=workdir, targetTime=targetTime, metaData={}, validateMetaData=validateMetaData, **kwargs)
     
     def getCriticalTimeStep(self):
         return min([self.model_1.getCriticalTimeStep(), self.model_2.getCriticalTimeStep()])
@@ -94,9 +99,9 @@ class MyProblemClassWorkflow(mupif.Workflow.Workflow):
     def solveStep(self, tstep, stageID=0, runInBackground=False):
         
         # execution code of model_1 (thermal_nonstat)
-        self.model_1.set(self.external_input_1, 3)
-        self.model_1.set(self.constant_property_1, 11)
-        self.model_1.set(self.constant_property_2, 14)
+        self.model_1.set(self.external_input_1, 'Cauchy top')
+        self.model_1.set(self.constant_property_1, 'Dirichlet bottom')
+        self.model_1.set(self.constant_property_2, 'Dirichlet left')
         self.model_1.solveStep(tstep)
         
         # execution code of model_2 (mechanical)

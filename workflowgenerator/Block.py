@@ -27,6 +27,10 @@ class Block:
     def getUID(self):
         return self.uuid
 
+    def getCodeName(self):
+        """:rtype: str"""
+        return self.code_name
+
     def getBlocks(self, cls=None):
         """
         Returns list of child blocks.

@@ -162,7 +162,8 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         code.append("\t\tself.setMetadata('Name', '%s')" % workflow_classname)
         code.append("\t\tself.setMetadata('ID', '%s')" % workflow_classname)
         code.append("\t\tself.setMetadata('Description', '%s')" % "")
-        code.append("\t\tself.setMetadata('Model_refs_ID', [])")
+        # code.append("\t\tself.setMetadata('Description', '%s')" % "")
+        code.append("\t\tself.setMetadata('Model_refs_ID', {})")
 
         code.append("\t\tself.updateMetadata(metaData)")
 
@@ -173,9 +174,9 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
                 if s.connected():
                     num_of_external_input_dataslots += 1
                     params = "'Name': '%s', 'Type': '%s', 'required': %s, 'description': '%s', 'Type_ID': '%s', " \
-                             "'Object_ID': '%s', 'ID': 0, 'Units': '', 'Required': True" % (
+                             "'Obj_ID': ['%s'], 'ID': 0, 'Units': '', 'Required': True" % (
                                 s.name, s.type, True, "",
-                                s.getLinkedDataSlot().getObjType(), s.obj_id)
+                                s.getLinkedDataSlot().getObjType(), s.getObjID())
 
                     if code_add != "":
                         code_add = "%s, " % code_add
@@ -187,9 +188,9 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
             for s in self.getAllExternalDataSlots("in"):
                 if s.connected():
                     params = "'Name': '%s', 'Type': '%s', 'required': %s, 'description': '%s', 'Type_ID': '%s', " \
-                             "'Object_ID': '%s', 'ID': 0, 'Units': '', 'Required': False" % (
+                             "'Obj_ID': ['%s'], 'ID': 0, 'Units': '', 'Required': False" % (
                                 s.name, s.type, False, "",
-                                s.getLinkedDataSlot().getObjType(), s.obj_id)
+                                s.getLinkedDataSlot().getObjType(), s.getObjID())
 
                     if code_add != "":
                         code_add = "%s, " % code_add
@@ -210,6 +211,11 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         for model in self.getBlocksRecursive():
             code.extend(model.getInitCode(2))
 
+        code.append("")
+
+        for model in all_model_blocks:
+            code.append("\t\tself.addModelToListOfModels(self.%s)" % model.getCodeName())
+
         # initialize function
 
         code.append("\t")
@@ -221,10 +227,7 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
 
         code.append("\t\t")
 
-        code.append(
-            "\t\tmupif.Workflow.Workflow.initialize(self, file=file, workdir=workdir, targetTime=targetTime, "
-            "metaData=metaData, validateMetaData=validateMetaData, **kwargs)"
-        )
+        code.append("\t\tself.updateMetadata(dictionary=metaData)")
 
         code.append("\t\t")
         code.append("\t\texecMD = {")
@@ -237,6 +240,13 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
 
         for model in all_model_blocks:
             code.extend(model.getInitializationCode(2, "execMD"))
+
+        code.append("\t\t")
+
+        code.append(
+            "\t\tmupif.Workflow.Workflow.initialize(self, file=file, workdir=workdir, targetTime=targetTime, "
+            "metaData={}, validateMetaData=validateMetaData, **kwargs)"
+        )
 
         # get critical time step
 
@@ -355,6 +365,7 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
             code.append("\t}")
             code.append("\tproblem.initialize(metaData=md)")
             code.append("\tproblem.solve()")
+            code.append("\tproblem.printMetadata()")
             code.append("\tproblem.terminate()")
             code.append("\t")
             code.append("\tprint('Simulation has finished.')")

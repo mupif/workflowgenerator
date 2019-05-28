@@ -16,7 +16,7 @@ class MyProblemExecutionWorkflow(mupif.Workflow.Workflow):
         self.setMetadata('Name', 'MyProblemExecutionWorkflow')
         self.setMetadata('ID', 'MyProblemExecutionWorkflow')
         self.setMetadata('Description', '')
-        self.setMetadata('Model_refs_ID', [])
+        self.setMetadata('Model_refs_ID', {})
         self.updateMetadata(metaData)
         
         # __init__ code of constant_physical_quantity_1 ()
@@ -39,10 +39,14 @@ class MyProblemExecutionWorkflow(mupif.Workflow.Workflow):
         
         # __init__ code of model_3 (field_export_to_VTK)
         self.model_3 = field_to_vtk.field_export_to_VTK()
+
+        self.addModelToListOfModels(self.model_1)
+        self.addModelToListOfModels(self.model_2)
+        self.addModelToListOfModels(self.model_3)
     
     def initialize(self, file='', workdir='', targetTime=mupif.Physics.PhysicalQuantities.PhysicalQuantity(0., 's'), metaData={}, validateMetaData=True, **kwargs):
         
-        mupif.Workflow.Workflow.initialize(self, file=file, workdir=workdir, targetTime=targetTime, metaData=metaData, validateMetaData=validateMetaData, **kwargs)
+        self.updateMetadata(dictionary=metaData)
         
         execMD = {
             'Execution': {
@@ -60,6 +64,8 @@ class MyProblemExecutionWorkflow(mupif.Workflow.Workflow):
         
         # initialization code of model_3 (field_export_to_VTK)
         self.model_3.initialize(metaData=execMD)
+        
+        mupif.Workflow.Workflow.initialize(self, file=file, workdir=workdir, targetTime=targetTime, metaData={}, validateMetaData=validateMetaData, **kwargs)
     
     def terminate(self):
         self.model_1.terminate()
@@ -112,6 +118,7 @@ if __name__ == '__main__':
     }
     problem.initialize(metaData=md)
     problem.solve()
+    problem.printMetadata()
     problem.terminate()
     
     print('Simulation has finished.')

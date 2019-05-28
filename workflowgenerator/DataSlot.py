@@ -79,7 +79,7 @@ class DataSlot:
         return self.obj_type
 
     def getObjID(self):
-        """ :rtype: int """
+        """ :rtype: int or str """
         return self.obj_id
 
     def connectedInfo(self):
@@ -92,9 +92,9 @@ class DataSlot:
         return connect_info
 
     def __repr__(self):
-        return "%s %s" % (colored("%s (%s.%s %s)" % (
+        return "%s %s %s" % (colored("%s (%s.%s %s)" % (
             self.__class__.__name__, self.getParentBlock().name, self.name, self.type), "blue"),
-                          self.connectedInfo())
+                          self.connectedInfo(), self.obj_id)
 
     def getUID(self):
         return self.uid
