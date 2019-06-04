@@ -20,8 +20,9 @@ import importlib.util
 
 class BlockWorkflow (BlockSequentional.BlockSequentional):
 
-    list_of_models = []
     list_of_block_classes = []
+
+    list_of_model_metadata = []
 
     def __init__(self):
         BlockSequentional.BlockSequentional.__init__(self)
@@ -162,8 +163,6 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         code.append("\t\tself.setMetadata('Name', '%s')" % workflow_classname)
         code.append("\t\tself.setMetadata('ID', '%s')" % workflow_classname)
         code.append("\t\tself.setMetadata('Description', '%s')" % "")
-        # code.append("\t\tself.setMetadata('Description', '%s')" % "")
-        code.append("\t\tself.setMetadata('Model_refs_ID', {})")
 
         code.append("\t\tself.updateMetadata(metaData)")
 
@@ -214,7 +213,7 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         code.append("")
 
         for model in all_model_blocks:
-            code.append("\t\tself.addModelToListOfModels(self.%s)" % model.getCodeName())
+            code.append("\t\tself.registerModel(self.%s)" % model.getCodeName())
 
         # initialize function
 
@@ -375,7 +374,8 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
 
     @staticmethod
     def getListOfModelClassnames():
-        array = [m.__name__ for m in BlockWorkflow.list_of_models]
+        # array = [m.__name__ for m in BlockWorkflow.list_of_models]
+        array = [m['workflowgenerator_classname'] for m in BlockWorkflow.list_of_model_metadata]
         return array
 
     @staticmethod
@@ -402,7 +402,11 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
                         is_sub_workflow = issubclass(my_class, mupif.Workflow.Workflow)
 
                         if is_sub_model or is_sub_workflow:
-                            BlockWorkflow.list_of_models.append(my_class)
+                            instance = my_class()
+                            md = instance.getAllMetadata()
+                            md.update({'workflowgenerator_classname': my_class.__name__})
+                            md.update({'workflowgenerator_module': my_class.__module__})
+                            BlockWorkflow.list_of_model_metadata.append(md)
 
     @staticmethod
     def loadCustomStandardBlocksFromGivenFile(full_path):
@@ -448,9 +452,9 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
             del self.datalinks[idx]
 
     @staticmethod
-    def getListOfModels():
+    def getListOfModelMetadata():
         """:rtype: list of class"""
-        return BlockWorkflow.list_of_models
+        return BlockWorkflow.list_of_model_metadata
 
     @staticmethod
     def getListOfBlockClasses():
@@ -542,7 +546,9 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
                             if block_class.__name__ == 'BlockModel' and False:
                                 if item['model_classname'] in self.getListOfModelClassnames():
                                     model_index = self.getListOfModelClassnames().index(item['model_classname'])
-                                    new_block = block_class(self.getListOfModels()[model_index]())
+                                    new_model_md = self.getListOfModelMetadata()[model_index]
+                                    # new_block = block_class(self.getListOfModels()[model_index]())
+                                    new_block = BlockModel.BlockModel(model_md=new_model_md)
                                     new_block.constructFromModelMetaData()
                                 else:
                                     print("Model is not in list of known models.")

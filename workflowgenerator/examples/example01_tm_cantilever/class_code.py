@@ -15,7 +15,6 @@ class MyProblemClassWorkflow(mupif.Workflow.Workflow):
         self.setMetadata('Name', 'MyProblemClassWorkflow')
         self.setMetadata('ID', 'MyProblemClassWorkflow')
         self.setMetadata('Description', '')
-        self.setMetadata('Model_refs_ID', {})
         self.updateMetadata(metaData)
         self.updateMetadata({'Inputs': [{'Name': 'top_temperature', 'Type': 'mupif.Property', 'required': True, 'description': '', 'Type_ID': 'mupif.PropertyID.PID_Temperature', 'Obj_ID': ['top_temperature'], 'ID': 0, 'Units': '', 'Required': True}]})
         self.updateMetadata({'Outputs': [{'Name': 'temperature', 'Type': 'mupif.Field', 'required': False, 'description': '', 'Type_ID': 'mupif.FieldID.FID_Temperature', 'Obj_ID': ['temperature'], 'ID': 0, 'Units': '', 'Required': False}, {'Name': 'displacement', 'Type': 'mupif.Field', 'required': False, 'description': '', 'Type_ID': 'mupif.FieldID.FID_Displacement', 'Obj_ID': ['displacement'], 'ID': 0, 'Units': '', 'Required': False}]})
@@ -36,8 +35,8 @@ class MyProblemClassWorkflow(mupif.Workflow.Workflow):
         # __init__ code of model_2 (mechanical)
         self.model_2 = models.mechanical()
 
-        self.addModelToListOfModels(self.model_1)
-        self.addModelToListOfModels(self.model_2)
+        self.registerModel(self.model_1)
+        self.registerModel(self.model_2)
     
     def initialize(self, file='', workdir='', targetTime=mupif.Physics.PhysicalQuantities.PhysicalQuantity(0., 's'), metaData={}, validateMetaData=True, **kwargs):
         

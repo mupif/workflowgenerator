@@ -96,8 +96,9 @@ class BlockIfElse (Block.Block):
             self.getMenuProperty().addItemIntoSubMenu(VisualMenu.VisualMenuItem(
                 'set_standard_block_else', block_class.__name__, block_class.__name__), 'Set Block Else.Standard')
 
-        for block_class in self.getWorkflowBlock().getListOfModels():
+        for block_md in self.getWorkflowBlock().getListOfModelMetadata():
+            cls_name = block_md['workflowgenerator_classname']
             self.getMenuProperty().addItemIntoSubMenu(VisualMenu.VisualMenuItem(
-                'set_standard_block_if', block_class.__name__, block_class.__name__), 'Set Block If.Model')
+                'set_standard_block_if', cls_name, cls_name), 'Set Block If.Model')
             self.getMenuProperty().addItemIntoSubMenu(VisualMenu.VisualMenuItem(
-                'set_standard_block_else', block_class.__name__, block_class.__name__), 'Set Block Else.Model')
+                'set_standard_block_else', cls_name, cls_name), 'Set Block Else.Model')

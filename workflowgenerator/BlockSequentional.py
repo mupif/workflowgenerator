@@ -42,8 +42,8 @@ class BlockSequentional (Block.Block):
             from . import BlockModel
             if value in self.getWorkflowBlock().getListOfModelClassnames():
                 index = self.getWorkflowBlock().getListOfModelClassnames().index(value)
-                new_model = self.getWorkflowBlock().getListOfModels()[index]()
-                new_block = BlockModel.BlockModel(new_model)
+                new_model_md = self.getWorkflowBlock().getListOfModelMetadata()[index]
+                new_block = BlockModel.BlockModel(model_md=new_model_md)
                 new_block.constructFromModelMetaData()
                 self.addBlock(new_block)
         else:
@@ -58,6 +58,7 @@ class BlockSequentional (Block.Block):
             self.getMenuProperty().addItemIntoSubMenu(VisualMenu.VisualMenuItem(
                 'add_standard_block', block_class.__name__, block_class.__name__), 'Add Block.Standard')
 
-        for block_class in self.getWorkflowBlock().getListOfModels():
+        for block_md in self.getWorkflowBlock().getListOfModelMetadata():
+            cls_name = block_md['workflowgenerator_classname']
             self.getMenuProperty().addItemIntoSubMenu(VisualMenu.VisualMenuItem(
-                'add_model_block', block_class.__name__, block_class.__name__), 'Add Block.Model')
+                'add_model_block', cls_name, cls_name), 'Add Block.Model')

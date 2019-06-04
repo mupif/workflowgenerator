@@ -72,6 +72,9 @@ class BlockConstProperty (Block.Block):
         return []
 
     def setValue(self, val):
+        """
+        :param tuple val:
+        """
         self.value = val
 
     def setPropertyID(self, val):

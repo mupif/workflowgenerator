@@ -16,7 +16,6 @@ class MyProblemExecutionWorkflow(mupif.Workflow.Workflow):
         self.setMetadata('Name', 'MyProblemExecutionWorkflow')
         self.setMetadata('ID', 'MyProblemExecutionWorkflow')
         self.setMetadata('Description', '')
-        self.setMetadata('Model_refs_ID', {})
         self.updateMetadata(metaData)
         
         # __init__ code of constant_physical_quantity_1 ()
@@ -40,9 +39,9 @@ class MyProblemExecutionWorkflow(mupif.Workflow.Workflow):
         # __init__ code of model_3 (field_export_to_VTK)
         self.model_3 = field_to_vtk.field_export_to_VTK()
 
-        self.addModelToListOfModels(self.model_1)
-        self.addModelToListOfModels(self.model_2)
-        self.addModelToListOfModels(self.model_3)
+        self.registerModel(self.model_1)
+        self.registerModel(self.model_2)
+        self.registerModel(self.model_3)
     
     def initialize(self, file='', workdir='', targetTime=mupif.Physics.PhysicalQuantities.PhysicalQuantity(0., 's'), metaData={}, validateMetaData=True, **kwargs):
         

@@ -10,9 +10,9 @@ class BlockModel (Block.Block):
     """
     Implementation of a block representing model
     """
-    def __init__(self, model=None):
+    def __init__(self, model=None, model_md=None):  # TODO
         """
-        :param mupif.Model.Model model:
+        :param mupif.Model.Model or mupif.Model.RemoteModel or mupif.Workflow.Workflow model:
         """
         Block.Block.__init__(self)
 
@@ -29,6 +29,11 @@ class BlockModel (Block.Block):
                 self.model_metadata_inputs = md['Inputs']
             if model.hasMetadata('Outputs'):
                 self.model_metadata_outputs = md['Outputs']
+        elif model_md is not None:
+            self.model_module = model_md['workflowgenerator_module']
+            self.name = model_md['workflowgenerator_classname']
+            self.model_metadata_inputs = model_md['Inputs']
+            self.model_metadata_outputs = model_md['Outputs']
 
         self.input_file_name = ""
         self.input_file_directory = ""

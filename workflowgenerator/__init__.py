@@ -15,6 +15,7 @@ from . import exceptions
 from . import helpers
 from . import tools
 
+__version__ = '1.0.0'
 
 __all__ = ['Block', 'BlockSequentional', 'BlockTimeloop', 'BlockWorkflow', 'BlockModel', 'BlockDefiningTimestep',
            'BlockConstProperty', 'BlockConstPhysicalQuantity', 'BlockIfElse', 'BlockBoolCompareValue',
