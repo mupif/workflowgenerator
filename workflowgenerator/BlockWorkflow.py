@@ -436,6 +436,28 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         """
         return self.datalinks
 
+    def getDataLinkByUID(self, uid):
+        """
+        :param str uid:
+        :rtype: Datalink.Datalink or None
+        """
+        for datalink in self.getDataLinks():
+            if datalink.getUID() == uid:
+                return datalink
+        return None
+
+    def getDatalinkBySlotUIDs(self, uid1, uid2):
+        """
+        :param str uid1:
+        :param str uid2:
+        :rtype: Datalink.Datalink or None
+        """
+        for datalink in self.getDataLinks():
+            uids = datalink.getSlotsUID()
+            if (uids[0] == uid1 and uids[1] == uid2) or (uids[0] == uid2 and uids[1] == uid1):
+                return datalink
+        return None
+
     def getDataLinksOfSlot(self, slot):
         dls = []
         for dl in self.getDataLinks():
@@ -571,6 +593,26 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
     # ------------------------------------------------------------------------------------------
     # support functions for visualisation
     # ------------------------------------------------------------------------------------------
+
+    def modificationQuery(self, keyword, value=None):
+        """
+        :param str keyword:
+        :param value:
+        """
+        if keyword == 'delete_datalink' and isinstance(value, list):
+            if len(value) == 2:
+                dl = self.getDatalinkBySlotUIDs(value[0], value[1])
+                if dl is not None:
+                    self.removeDataLink(dl)
+        elif keyword == 'delete_dataslot' and isinstance(value, str):
+            sl = self.getDataSlotWithUID(value)
+            self.deleteSlot(sl)
+        elif keyword == 'set_dataslot_name' and isinstance(value, list):
+            if len(value) == 2:
+                sl = self.getDataSlotWithUID(value[0])
+                sl.setName(value[1])
+        else:
+            BlockSequentional.BlockSequentional.modificationQuery(self, keyword, value)
 
     def modificationQueryForItemWithUID(self, uid, keyword, value=None):
         """

@@ -18,6 +18,12 @@ class DataLink:
     def __repr__(self):
         return self.__str__()
 
+    def getUID(self):
+        """
+        :rtype: str
+        """
+        return self.uid
+
     def destroy(self):
         """Remove this DataLink and its reference in workflow."""
         self.source.getParentBlock().getWorkflowBlock().removeDataLink(self)

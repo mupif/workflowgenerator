@@ -58,6 +58,10 @@ class DataSlot:
         """ :rtype: str """
         return self.name
 
+    def setName(self, val):
+        if self.getParentBlock().getDataSlotWithName(val) is None:
+            self.name = val
+
     def getType(self):
         """ :rtype: DataSlotType """
         return self.type
@@ -129,6 +133,8 @@ class DataSlot:
             raise KnobConnectionError("Ignoring connection to all element types except DataSlot and derived classes.")
 
         if self.reachedMaxConnections() or target.reachedMaxConnections():
+            print(self.getDataLinks())
+            print(target.getDataLinks())
             raise KnobConnectionError("One of the slots can accept no more connections.")
 
         if target is self:

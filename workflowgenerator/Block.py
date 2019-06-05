@@ -145,10 +145,21 @@ class Block:
 
     def getDataSlotWithName(self, name):
         """Return matching data slot by its name, None otherwise.
+        :param str name:
         :rtype: DataSlot.DataSlot or None
         """
         for slot in self.getSlots():
             if slot.name == name:
+                return slot
+        return None
+
+    def getDataSlotWithUID(self, uid):
+        """Return matching data slot by its UID, None otherwise.
+        :param str uid:
+        :rtype: DataSlot.DataSlot or None
+        """
+        for slot in self.getSlotsRecursive():
+            if slot.getUID() == uid:
                 return slot
         return None
 
