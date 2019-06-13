@@ -36,17 +36,17 @@ if __name__ == '__main__':
 
     timeloop = workflowgenerator.BlockTimeloop.BlockTimeloop()
 
-    model1 = workflowgenerator.BlockModel.BlockModel(model_c_1)
+    model1 = workflowgenerator.BlockModel.BlockModel(model=model_c_1)
     model1.constructFromModelMetaData()
     timeloop.addBlock(model1)
 
     export_class = field_to_vtk.field_export_to_VTK()
 
-    export_block1 = workflowgenerator.BlockModel.BlockModel(export_class)
+    export_block1 = workflowgenerator.BlockModel.BlockModel(model=export_class)
     export_block1.constructFromModelMetaData()
     timeloop.addBlock(export_block1)
 
-    export_block2 = workflowgenerator.BlockModel.BlockModel(export_class)
+    export_block2 = workflowgenerator.BlockModel.BlockModel(model=export_class)
     export_block2.constructFromModelMetaData()
     timeloop.addBlock(export_block2)
 

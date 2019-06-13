@@ -29,12 +29,12 @@ if __name__ == '__main__':
     model_c_2 = models.thermal_nonstat()
     model_c_3 = models.mechanical()
 
-    model1 = workflowgenerator.BlockModel.BlockModel(model_c_2)
+    model1 = workflowgenerator.BlockModel.BlockModel(model=model_c_2)
     model1.constructFromModelMetaData()
     model1.setInputFile('inputT13.in')
     workflow.addBlock(model1)
 
-    model2 = workflowgenerator.BlockModel.BlockModel(model_c_3)
+    model2 = workflowgenerator.BlockModel.BlockModel(model=model_c_3)
     model2.constructFromModelMetaData()
     model2.setInputFile('inputM13.in')
     workflow.addBlock(model2)

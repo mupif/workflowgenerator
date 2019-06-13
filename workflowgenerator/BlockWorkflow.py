@@ -212,8 +212,12 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
 
         code.append("")
 
-        for model in all_model_blocks:
-            code.append("\t\tself.registerModel(self.%s)" % model.getCodeName())
+        # TODO temporarily disabled in master branch
+        code.append("\t\tself.setMetadata('Model_refs_ID', [])")
+        if hasattr(mupif, "_branch"):
+            if mupif._branch == 'dev2':
+                for model in all_model_blocks:
+                    code.append("\t\tself.registerModel(self.%s)" % model.getCodeName())
 
         # initialize function
 
