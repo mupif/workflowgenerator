@@ -39,6 +39,7 @@ class MyProblemExecutionWorkflow(mupif.Workflow.Workflow):
         # __init__ code of model_3 (field_export_to_VTK)
         self.model_3 = field_to_vtk.field_export_to_VTK()
 
+        self.setMetadata('Model_refs_ID', [])
         self.registerModel(self.model_1)
         self.registerModel(self.model_2)
         self.registerModel(self.model_3)

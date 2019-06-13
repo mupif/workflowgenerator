@@ -173,7 +173,7 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
                 if s.connected():
                     num_of_external_input_dataslots += 1
                     params = "'Name': '%s', 'Type': '%s', 'Required': %s, 'description': '%s', 'Type_ID': '%s', " \
-                             "'Obj_ID': ['%s'], 'ID': 0, 'Units': '', 'Required': True" % (
+                             "'Obj_ID': ['%s'], 'ID': 0, 'Units': ''" % (
                                 s.name, s.type, True, "",
                                 s.getLinkedDataSlot().getObjType(), s.getObjID())
 
@@ -187,7 +187,7 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
             for s in self.getAllExternalDataSlots("in"):
                 if s.connected():
                     params = "'Name': '%s', 'Type': '%s', 'Required': %s, 'description': '%s', 'Type_ID': '%s', " \
-                             "'Obj_ID': ['%s'], 'ID': 0, 'Units': '', 'Required': False" % (
+                             "'Obj_ID': ['%s'], 'ID': 0, 'Units': ''" % (
                                 s.name, s.type, False, "",
                                 s.getLinkedDataSlot().getObjType(), s.getObjID())
 
