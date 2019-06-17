@@ -11,6 +11,7 @@ from . import BlockConstProperty
 from . import BlockTimeloop
 from . import BlockBoolCompareValue
 from . import BlockIfElse
+from . import DefaultModels
 
 import os
 import sys
@@ -23,6 +24,8 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
     list_of_block_classes = []
 
     list_of_model_metadata = []
+
+    defaultModelsLoaded = False
 
     def __init__(self):
         BlockSequentional.BlockSequentional.__init__(self)
@@ -411,6 +414,14 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
                             md.update({'workflowgenerator_classname': my_class.__name__})
                             md.update({'workflowgenerator_module': my_class.__module__})
                             BlockWorkflow.list_of_model_metadata.append(md)
+
+    @staticmethod
+    def loadDefaultModels():
+        if not BlockWorkflow.defaultModelsLoaded:
+            for md in DefaultModels.models_composelector:
+                BlockWorkflow.list_of_model_metadata.append(md)
+
+            BlockWorkflow.defaultModelsLoaded = True
 
     @staticmethod
     def loadCustomStandardBlocksFromGivenFile(full_path):

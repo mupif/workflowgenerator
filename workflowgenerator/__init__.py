@@ -11,6 +11,7 @@ from . import BlockBoolCompareValue
 from . import DataLink
 from . import DataSlot
 from . import VisualMenu
+from . import DefaultModels
 from . import exceptions
 from . import helpers
 from . import tools
@@ -19,5 +20,5 @@ __version__ = '1.0.0'
 
 __all__ = ['Block', 'BlockSequentional', 'BlockTimeloop', 'BlockWorkflow', 'BlockModel', 'BlockDefiningTimestep',
            'BlockConstProperty', 'BlockConstPhysicalQuantity', 'BlockIfElse', 'BlockBoolCompareValue',
-           'DataLink', 'DataSlot', 'VisualMenu',
+           'DataLink', 'DataSlot', 'VisualMenu', 'DefaultModels',
            'tools', 'exceptions', 'helpers']

@@ -60,7 +60,10 @@ class BlockModel (Block.Block):
         :rtype: str[]
         """
         code = Block.Block.getInitCode(self)
-        code.append("self.%s = %s.%s()" % (self.code_name, self.model_module, self.name))
+        if self.model_module == "":
+            code.append("self.%s = %s()" % (self.code_name, self.name))
+        else:
+            code.append("self.%s = %s.%s()" % (self.code_name, self.model_module, self.name))
         return tools.push_indents_before_each_line(code, indent)
 
     def getInitializationCode(self, indent=0, metaDataStr="{}"):
