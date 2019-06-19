@@ -335,6 +335,7 @@ class Block:
 
     def getMenu(self):
         """:rtype: VisualMenu.VisualMenu"""
-        if self.menu is None:
-            self.generateMenu()
+        # if self.menu is None:
+        #     self.generateMenu()
+        self.generateMenu()
         return self.menu
