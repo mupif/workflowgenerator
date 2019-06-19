@@ -165,7 +165,7 @@ class BlockModel (Block.Block):
                                 DataSlot.OutputDataSlot(
                                     slot['Name'] + " " + obj_id_str,
                                     slot['Type'],
-                                    slot['Required'],
+                                    False,
                                     slot['Type_ID'],
                                     obj_id
                                 )
@@ -177,7 +177,7 @@ class BlockModel (Block.Block):
                         DataSlot.OutputDataSlot(
                             slot['Name'],
                             slot['Type'],
-                            slot['Required'],
+                            False,
                             slot['Type_ID'],
                             0
                         )
