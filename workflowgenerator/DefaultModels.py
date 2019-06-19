@@ -1,5 +1,5 @@
 models_composelector = [
-    # DIGIMAT
+    # DIGIMAT MF
     {
         'workflowgenerator_classname': 'DigimatApplication',
         'workflowgenerator_module': '',
@@ -27,6 +27,44 @@ models_composelector = [
             'Sensitivity': 'High',
             'Complexity': 'Low',
             'Robustness': 'High'
+        },
+        'Inputs': [
+            {'Type': 'mupif.Property', 'Type_ID': 'mupif.PropertyID.PID_Time_step', 'Name': 'Time step', 'Description': 'Time step', 'Units': 's', 'Origin': 'Simulated', 'Required': True}
+        ],
+        'Outputs': [
+            {'Type': 'mupif.Property', 'Type_ID': 'mupif.PropertyID.PID_Time', 'Name': 'Cummulative time', 'Description': 'Cummulative time', 'Units': 's', 'Origin': 'Simulated'}
+        ]
+    },
+
+    # DIGIMAT FE
+    {
+        'workflowgenerator_classname': 'DigimatApplicationGYRFE',
+        'workflowgenerator_module': '',
+
+        'Name': 'Digimat-FE GOODYEAR',
+        'ID': 'Digimat-FE-g',
+        'Description': 'Full Field Homogenization for GoodYear case (SBR with Silica)',
+        'Solver': {
+            'Software': 'Digimat-FE-2018.1',
+            'Language': 'C++',
+            'License': 'Commercial',
+            'Creator': 'Vincent',
+            'Version_date': '05/2019',
+            'Type': 'Full Field Homogenization',
+            'Documentation': 'Where is it documented',
+            'Estim_time_step_s': 1,
+            'Estim_comp_time_s': 10000,
+            'Estim_execution_cost_EUR': 0.01,
+            'Estim_personnel_cost_EUR': 0.01,
+            'Required_expertise': 'None',
+            'Accuracy': 'High',
+            'Sensitivity': 'High',
+            'Complexity': 'Low',
+            'Robustness': 'High'
+        },
+        'Physics': {
+            'Type': 'Continuum',
+            'Entity': 'Other'
         },
         'Inputs': [
             {'Type': 'mupif.Property', 'Type_ID': 'mupif.PropertyID.PID_Time_step', 'Name': 'Time step', 'Description': 'Time step', 'Units': 's', 'Origin': 'Simulated', 'Required': True}
@@ -136,7 +174,7 @@ models_composelector = [
         'Outputs': [
             {'Type': 'mupif.Property', 'Type_ID': 'mupif.PropertyID.PID_DENSITY', 'Name': 'density', 'Description': 'density', 'Units': 'g/cm^3', 'Origin': 'Simulated'},
             {'Type': 'mupif.Property', 'Type_ID': 'mupif.PropertyID.PID_EModulus', 'Name': 'Young modulus', 'Description': 'Young modulus', 'Units': 'GPa', 'Origin': 'Simulated'},
-            {'Type': 'mupif.Property', 'Type_ID': 'mupif.PropertyID.PID_effective_conductivity', 'Name': 'Thermal Conductivity', 'Description': 'Thermal Conductivity', 'Units': 'W/m.??C', 'Origin': 'Simulated'},
+            {'Type': 'mupif.Property', 'Type_ID': 'mupif.PropertyID.PID_effective_conductivity', 'Name': 'Thermal Conductivity', 'Description': 'Thermal Conductivity', 'Units': 'W/m/degC', 'Origin': 'Simulated'},
             {'Type': 'mupif.Property', 'Type_ID': 'mupif.PropertyID.PID_TRANSITION_TEMPERATURE', 'Name': 'Glass Transition Temperature', 'Description': 'Glass Transition Temperature', 'Units': 'K', 'Origin': 'Simulated'},
             {'Type': 'mupif.Property', 'Type_ID': 'mupif.PropertyID.PID_PoissonRatio', 'Name': 'Poisson Ratio', 'Description': 'Poisson Ratio', 'Units': 'None', 'Origin': 'Simulated'}
         ]
