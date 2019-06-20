@@ -178,5 +178,50 @@ models_composelector = [
             {'Type': 'mupif.Property', 'Type_ID': 'mupif.PropertyID.PID_TRANSITION_TEMPERATURE', 'Name': 'Glass Transition Temperature', 'Description': 'Glass Transition Temperature', 'Units': 'K', 'Origin': 'Simulated'},
             {'Type': 'mupif.Property', 'Type_ID': 'mupif.PropertyID.PID_PoissonRatio', 'Name': 'Poisson Ratio', 'Description': 'Poisson Ratio', 'Units': 'None', 'Origin': 'Simulated'}
         ]
-    }
+    },
+
+
+    # # ABAQUS
+    # {
+    #     'workflowgenerator_classname': 'AbaqusApp',
+    #     'workflowgenerator_module': '',
+    #
+    #     'Name': 'ABAQUS finite element solver',
+    #     'ID': 'N/A',
+    #     'Description': 'multi-purpose finite element software',
+    #     'Physics': {
+    #         'Type': 'Other',
+    #         'Entity': 'Other'
+    #     },
+    #
+    #     'Execution': {
+    #         'ID': 'none',
+    #         'Use_case_ID': 'Dow',
+    #         'Task_ID': 'none'
+    #     },
+    #
+    #     'Solver': {
+    #         'Software': 'ABAQUS Solver using ABAQUS',
+    #         'Language': 'FORTRAN, C/C++',
+    #         'License': 'proprietary code',
+    #         'Creator': 'Dassault systemes',
+    #         'Version_date': '03/2019',
+    #         'Type': 'Summator',
+    #         'Documentation': 'extensive',
+    #         'Estim_time_step_s': 1,
+    #         'Estim_comp_time_s': 0.01,
+    #         'Estim_execution_cost_EUR': 0.01,
+    #         'Estim_personnel_cost_EUR': 0.01,
+    #         'Required_expertise': 'User',
+    #         'Accuracy': 'High',
+    #         'Sensitivity': 'High',
+    #         'Complexity': 'Low',
+    #         'Robustness': 'High'
+    #     },
+    #
+    #     'Inputs': [],  # May be defined in the workflow depending on the use case
+    #     'Outputs': [],  # May be defined in the workflow depending on the use case
+    #     'refPoint': 'none',  # May be defined in the workflow depending on the use case
+    #     'componentID': 'none',  # May be defined in the workflow depending on the use case
+    # }
 ]

@@ -194,7 +194,9 @@ class BlockModel (Block.Block):
         return -1
 
     def getModelDependency(self):
-        return "import %s" % self.model_module
+        if self.model_module != "":
+            return "import %s" % self.model_module
+        return ""
 
     def generateOutputDataSlotGetFunction(self, slot, time=''):
         """

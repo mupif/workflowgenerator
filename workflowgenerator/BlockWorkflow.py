@@ -139,8 +139,9 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         printed_dependencies = []
         for model in all_model_blocks:
             if model.getModelDependency() not in printed_dependencies:
-                code.append(model.getModelDependency())
-                printed_dependencies.append(model.getModelDependency())
+                if model.getModelDependency() != "":
+                    code.append(model.getModelDependency())
+                    printed_dependencies.append(model.getModelDependency())
 
         code.append("")
         code.append("")
