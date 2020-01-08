@@ -9,6 +9,7 @@ from . import VisualMenu
 from . import BlockConstPhysicalQuantity
 from . import BlockConstProperty
 from . import BlockTimeloop
+from . import BlockIterloop
 from . import BlockBoolCompareValue
 from . import BlockIfElse
 from . import DefaultModels
@@ -40,6 +41,7 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         BlockWorkflow.list_of_block_classes.append(BlockBoolCompareValue.BlockBoolCompareValue)
         BlockWorkflow.list_of_block_classes.append(BlockIfElse.BlockIfElse)
         BlockWorkflow.list_of_block_classes.append(BlockSequentional.BlockSequentional)
+        BlockWorkflow.list_of_block_classes.append(BlockIterloop.BlockIterloop)
 
     def getWorkflowBlock(self):
         """
@@ -134,7 +136,7 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         all_model_blocks = self.getBlocksRecursive(BlockModel.BlockModel)
         child_blocks = self.getBlocks()
 
-        code = ["import mupif"]
+        code = ["import mupif", "import copy"]
 
         printed_dependencies = []
         for model in all_model_blocks:
@@ -623,6 +625,11 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
         elif keyword == 'delete_dataslot' and isinstance(value, str):
             sl = self.getDataSlotWithUID(value)
             self.deleteSlot(sl)
+        elif keyword == 'add_external_dataslot' and isinstance(value, str):
+            if value == 'out':
+                self.addDataSlot(DataSlot.ExternalInputDataSlot('external_dataslot', 'mupif.Property'))
+            elif value == 'in':
+                self.addDataSlot(DataSlot.ExternalOutputDataSlot('external_dataslot', 'mupif.Property'))
         elif keyword == 'set_dataslot_name' and isinstance(value, list):
             if len(value) == 2:
                 sl = self.getDataSlotWithUID(value[0])
@@ -643,6 +650,13 @@ class BlockWorkflow (BlockSequentional.BlockSequentional):
             if elem is not None:
                 elem.modificationQuery(keyword, value)
 
+    def generateAddExternalDataSlotsItems(self):
+        self.getMenuProperty().addItemIntoSubMenu(VisualMenu.VisualMenuItem(
+            'add_external_dataslot', 'in', 'Input slot'), 'Add External Dataslot')
+        self.getMenuProperty().addItemIntoSubMenu(VisualMenu.VisualMenuItem(
+            'add_external_dataslot', 'out', 'Output slot'), 'Add External Dataslot')
+
     def generateMenu(self):
         self.menu = VisualMenu.VisualMenu()
         self.generateAddBlockMenuItems()
+        self.generateAddExternalDataSlotsItems()

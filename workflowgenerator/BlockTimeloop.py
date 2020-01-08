@@ -84,7 +84,7 @@ class BlockTimeloop (BlockDefiningTimestep.BlockDefiningTimestep):
             var_time_step, var_time, var_dt, var_target_time, var_time_step_number))
         # while_code.append("\t")
 
-        for block in self.getBlocks(BlockModel.BlockModel):
+        for block in self.getBlocks():
             while_code.extend(block.getExecutionCode(1, "%s.getTime()" % var_time_step, var_time_step))
 
         code.extend(while_code)
